@@ -4,11 +4,15 @@ Vertex GeometryShader::shade(const Vertex &a, const Mat4x4f &projection){
     Vec4f res(a.pos);
     res = res * projection;
     Vertex output = a;
-    output.pos = Vec3f(res.x, res.y, res.z);
-    float invZ = 1 / res.w;
-    output.u *= invZ;
-    output.v *= invZ;
-    if (fabs(res.w) > eps )
-        output.pos = Vec3f(res.x * invZ, res.y * invZ, res.w);
+    output.pos = {res.x, res.y, res.z};
+
+    output.invW = 1 / res.w;
+    output.u *= output.invW;
+    output.v *= output.invW;
+
+//    output.pos.x *= output.invW;
+//    output.pos.y *= output.invW;
+//    output.pos.z *= output.invW;
+
     return output;
 }

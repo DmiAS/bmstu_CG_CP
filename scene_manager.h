@@ -47,9 +47,11 @@ private:
 
     void rasterBarTriangle(Vertex p1_, Vertex p2_, Vertex p3_);
 
-    bool testAndSet(Vec3f p);
+    bool testAndSet(const Vec3f& p);
 
     bool backfaceCulling(const Vertex& a, const Vertex& b, const Vertex& c);
+
+    bool clip(const Vertex& p);
 
 
 private:

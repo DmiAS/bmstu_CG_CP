@@ -8,7 +8,7 @@ class Vec4: public Vec3<T>{
 public:
     Vec4() = default;
 
-    Vec4(T x_, T y_, T z_, T w_): Vec3<T>(x_, y_, z_), w(w_){}
+    Vec4(T x_, T y_, T z_, T w_ = 1.0f): Vec3<T>(x_, y_, z_), w(w_){}
 
     Vec4(const Vec3<T>& v, float w_ = 1.0f): Vec3<T>(v.x, v.y, v.z), w(w_){}
 
