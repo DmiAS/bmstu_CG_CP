@@ -15,9 +15,10 @@ public:
 
     }
 
-    Mat4x4f cameraProjectMatrix(){
-        return Mat4x4f::LookAtLH(position, direction, up) * projectionMatrix;
+    Mat4x4f viewMatrix() const{
+        return Mat4x4f::LookAtLH(position, direction, up);
     }
+
 
 
 public:

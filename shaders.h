@@ -2,7 +2,7 @@
 #define SHADERS_H
 
 #include "vertex.h"
-#include "mat.h"
+#include "camera.h"
 
 template <typename T, typename U, typename V>
 inline T Clamp(T val, U low, V high)
@@ -32,7 +32,16 @@ public:
 
 class VertexShaderInterface{
 public:
-    virtual Vertex shade(const Vertex &a, const Mat4x4f& objToWorld, const Mat4x4f& projection) = 0;
+    virtual Vertex shade(const Vertex &a,
+                         const Mat4x4f& objToWorld,
+                         const Camera& cam) = 0;
     virtual ~VertexShaderInterface(){}
+};
+
+class GeometryShaderInterface{
+public:
+    virtual Vertex shade(const Vertex &a,
+                         const Mat4x4f& projectMatrix) = 0;
+    virtual ~GeometryShaderInterface(){}
 };
 #endif // SHADERS_H

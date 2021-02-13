@@ -49,6 +49,8 @@ private:
 
     bool testAndSet(Vec3f p);
 
+    bool backfaceCulling(const Vertex& a, const Vertex& b, const Vertex& c);
+
 
 private:
     std::vector<Camera> camers;
@@ -61,5 +63,6 @@ private:
     QGraphicsScene *scene;
     std::shared_ptr<PixelShaderInterface> pixel_shader;
     std::shared_ptr<VertexShaderInterface> vertex_shader;
+    std::shared_ptr<GeometryShaderInterface> geom_shader;
 };
 #endif // SCENE_MANAGER_H

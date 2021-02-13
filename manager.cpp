@@ -1,6 +1,7 @@
 ﻿#include "scene_manager.h"
 #include "bary.h"
 #include "texture.h"
+#include "geometry_shader.h"
 
 #define NDCX_TO_RASTER(ndc_x, width) (((ndc_x + 1.0f) * (width >> 1)))
 #define NDCY_TO_RASTER(ndc_y, height) (((1.0f - ndc_y) * (height >> 1)))
@@ -12,11 +13,12 @@ Vec3f denormolize(int width, int height, Vec3f point){
 
 
 void SceneManager::init(){
-    models.push_back(Model("C:\\raster\\ui_mode\\cube.obj"));
+    models.push_back(Model("C:\\raster\\ui_mode\\teapot.obj"));
     qDebug() << models[0].vertex_buffer.size();
-//    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\wall.jpg");
+//    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
     pixel_shader = std::make_shared<ColorShader>();
     vertex_shader = std::make_shared<VertexShader>();
+    geom_shader = std::make_shared<GeometryShader>();
     render_all();
 }
 
@@ -32,14 +34,34 @@ void SceneManager::render_all(){
     show();
 }
 
+bool SceneManager::backfaceCulling(const Vertex &a, const Vertex &b, const Vertex &c){
+    auto cam = camers[curr_camera];
+
+    auto normal = Vec3f::cross(b.pos - a.pos, c.pos - b.pos).normalize();
+    auto res = Vec3f::dot(normal, cam.direction);
+
+    if (res > 0)
+        return true;
+    return false;
+}
+
 void SceneManager::rasterize(Model& model){
     auto cam = camers[curr_camera];
-    auto projMatrix = cam.cameraProjectMatrix();
-    for (int i = 0; i < model.index_buffer.size() / 3; i++){
-        auto a = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i]], model.objToWorld(), projMatrix);
-        auto b = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 1]], model.objToWorld(), projMatrix);
-        auto c = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 2]], model.objToWorld(), projMatrix);
+    auto objToWorld = model.objToWorld();
+    auto viewMatrix = cam.viewMatrix();
+    auto projMatrix = cam.projectionMatrix;
 
+    for (int i = 0; i < model.index_buffer.size() / 3; i++){
+        auto a = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i]], objToWorld, cam);
+        auto b = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 1]], objToWorld, cam);
+        auto c = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 2]], objToWorld, cam);
+
+        if (backfaceCulling(a, b, c))
+            continue;
+
+        a = geom_shader->shade(a, projMatrix);
+        b = geom_shader->shade(b, projMatrix);
+        c = geom_shader->shade(c, projMatrix);
 
         rasterBarTriangle(a, b, c);
     }
