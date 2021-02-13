@@ -1,6 +1,7 @@
 ﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 #include <QMainWindow>
+#include <QKeyEvent>
 #include "scene_manager.h"
 
 QT_BEGIN_NAMESPACE
@@ -15,6 +16,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     SceneManager manager;
     ~MainWindow();
+
+protected:
+    void keyPressEvent(QKeyEvent *event);
 
 private slots:
     void on_render_button_clicked();
@@ -37,7 +41,14 @@ private slots:
 
     void on_scale_y_spin_valueChanged(double arg1);
 
+
 private:
     Ui::MainWindow *ui;
+};
+
+class Filter: public QObject{
+    Q_OBJECT
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
 };
 #endif // MAINWINDOW_H

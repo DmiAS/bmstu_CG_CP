@@ -65,6 +65,7 @@ bool SceneManager::clip(const Vertex& v){
 
 void SceneManager::rasterize(Model& model){
     auto cam = camers[curr_camera];
+    qDebug() << cam.position.x << cam.position.y << cam.position.z;
     auto rotation_matrix = model.rotation_matrix;
     auto objToWorld = model.objToWorld();
     auto viewMatrix = cam.viewMatrix();
@@ -75,8 +76,8 @@ void SceneManager::rasterize(Model& model){
         auto b = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 1]], rotation_matrix, objToWorld, cam);
         auto c = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 2]], rotation_matrix, objToWorld, cam);
 
-        if (backfaceCulling(a, b, c))
-            continue;
+//        if (backfaceCulling(a, b, c))
+//            continue;
 
         a = geom_shader->shade(a, projMatrix);
         b = geom_shader->shade(b, projMatrix);
@@ -188,6 +189,36 @@ void SceneManager::scale(trans_type t, float factor){
     case scale_z:
         models[0].scaleZ(factor);
     }
+
+    render_all();
+}
+
+void SceneManager::moveCamera(trans_type t, float dist){
+    dist *= -1;
+    auto& cam = camers[curr_camera];
+    float x_shift = 0, y_shift = 0, z_shift = 0;
+    switch (t) {
+    case shift_x:
+        x_shift = dist;
+//        cam.shiftX(dist);
+        break;
+    case shift_y:
+        y_shift = dist;
+//        cam.shiftY(dist);
+        break;
+    case shift_z:
+        z_shift = dist;
+//        cam.shiftZ(dist);
+    }
+
+    for (auto &model : models){
+        model.shiftX(x_shift);
+        model.shiftY(y_shift);
+        model.shiftZ(z_shift);
+    }
+
+    qDebug() << t << shift_x << shift_y << shift_z;
+    qDebug() << cam.position.x << cam.position.y << cam.position.z;
 
     render_all();
 }

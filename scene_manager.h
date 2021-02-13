@@ -38,6 +38,8 @@ public:
 
     void scale(trans_type t, float factor);
 
+    void moveCamera(trans_type t, float dist);
+
 private:
     void render_all();
 

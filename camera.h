@@ -19,6 +19,16 @@ public:
         return Mat4x4f::LookAtLH(position, direction, up);
     }
 
+    void shiftX(float dist){
+        position.x += dist;
+    }
+    void shiftY(float dist){
+        position.y += dist;
+    }
+    void shiftZ(float dist){
+        position.z += dist;
+    }
+
 
 
 public:

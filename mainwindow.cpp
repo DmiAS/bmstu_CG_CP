@@ -15,7 +15,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->canvas->setScene(new QGraphicsScene(0, 0, width, height));
 
+    auto filter = new Filter;
+    ui->canvas->installEventFilter(filter);
+
     manager = SceneManager(width, height, Qt::black, ui->canvas->scene());
+
+    QWidget::setEnabled(true);
 }
 
 MainWindow::~MainWindow()
@@ -117,4 +122,48 @@ void MainWindow::on_scale_y_spin_valueChanged(double arg1)
         step *= -1;
     prev_value = arg1;
     manager.scale(scale_y, step);
+}
+
+const int w = 17, d = 32, a = 30, s = 31, move_dist= 1;
+void MainWindow::keyPressEvent(QKeyEvent *event){
+    // w = 17 d = 32 a = 30 s = 31
+
+    switch (event->nativeScanCode()) {
+    case w:
+        manager.moveCamera(shift_z, move_dist);
+        break;
+    case d:
+        manager.moveCamera(shift_x, move_dist);
+        break;
+    case a:
+        manager.moveCamera(shift_x, -move_dist);
+        break;
+    case s:
+        manager.moveCamera(shift_z, -move_dist);
+        break;
+    }
+}
+
+bool Filter::eventFilter(QObject *obj, QEvent *event){
+    if (event->type() == QEvent::KeyPress){
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+//        switch (keyEvent->nativeScanCode()) {
+//        case w:
+//            manager.moveCamera(shift_z, move_dist);
+//            break;
+//        case d:
+//            manager.moveCamera(shift_x, move_dist);
+//            break;
+//        case a:
+//            manager.moveCamera(shift_x, -move_dist);
+//            break;
+//        case s:
+//            manager.moveCamera(shift_z, -move_dist);
+//            break;
+//        }
+        return true;
+    }else {
+        // standard event processing
+        return QObject::eventFilter(obj, event);
+    }
 }
