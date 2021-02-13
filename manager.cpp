@@ -16,10 +16,11 @@ void denormolize(int width, int height, Vertex& v){
 
 
 void SceneManager::init(){
-    models.push_back(Model("C:\\raster\\ui_mode\\cube.obj"));
-    qDebug() << models[0].vertex_buffer.size();
-    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
-//    pixel_shader = std::make_shared<ColorShader>();
+    models.push_back(Model("C:\\raster\\ui_mode\\pyramyd.obj"));
+    models[0].setColor(Vec3f(1, 0, 0));
+//    models[0].shiftZ(2);
+//    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
+    pixel_shader = std::make_shared<ColorShader>();
     vertex_shader = std::make_shared<VertexShader>();
     geom_shader = std::make_shared<GeometryShader>();
     render_all();
@@ -64,14 +65,15 @@ bool SceneManager::clip(const Vertex& v){
 
 void SceneManager::rasterize(Model& model){
     auto cam = camers[curr_camera];
+    auto rotation_matrix = model.rotation_matrix;
     auto objToWorld = model.objToWorld();
     auto viewMatrix = cam.viewMatrix();
     auto projMatrix = cam.projectionMatrix;
 
     for (int i = 0; i < model.index_buffer.size() / 3; i++){
-        auto a = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i]], objToWorld, cam);
-        auto b = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 1]], objToWorld, cam);
-        auto c = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 2]], objToWorld, cam);
+        auto a = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i]], rotation_matrix, objToWorld, cam);
+        auto b = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 1]], rotation_matrix, objToWorld, cam);
+        auto c = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 2]], rotation_matrix, objToWorld, cam);
 
         if (backfaceCulling(a, b, c))
             continue;

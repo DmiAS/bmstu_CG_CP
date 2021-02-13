@@ -75,6 +75,11 @@ public:
                Mat4x4f::Translation(shift_x, shift_y, shift_z);
     }
 
+    void setColor(const Vec3f& color){
+        for (auto& v: vertex_buffer)
+            v.color = color;
+    }
+
 private:
     float wrap_angle(float curr_angle, float next_angle, float step){
         if (next_angle < curr_angle)

@@ -33,6 +33,7 @@ public:
 class VertexShaderInterface{
 public:
     virtual Vertex shade(const Vertex &a,
+                         const Mat4x4f& rotation,
                          const Mat4x4f& objToWorld,
                          const Camera& cam) = 0;
     virtual ~VertexShaderInterface(){}

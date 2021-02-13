@@ -107,6 +107,21 @@ public:
         return direction - 2.f * Vec3::dot(direction, normal) * normal;
     }
 
+    Vec3 hadamard(const Vec3& v) const{
+        Vec3 out(*this);
+        out.x *= v.x;
+        out.y *= v.y;
+        out.z *= v.z;
+        return out;
+    }
+
+    Vec3& saturate(){
+        x = std::min((T)1.f, std::max((T)0.f, x));
+        y = std::min((T)1.f, std::max((T)0.f, y));
+        z = std::min((T)1.f, std::max((T)0.f, z));
+        return *this;
+    }
+
     public:
     T x, y, z;
 };

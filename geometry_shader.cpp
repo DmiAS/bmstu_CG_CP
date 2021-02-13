@@ -10,9 +10,5 @@ Vertex GeometryShader::shade(const Vertex &a, const Mat4x4f &projection){
     output.u *= output.invW;
     output.v *= output.invW;
 
-//    output.pos.x *= output.invW;
-//    output.pos.y *= output.invW;
-//    output.pos.z *= output.invW;
-
     return output;
 }
