@@ -38,6 +38,12 @@ public:
 
     void scale(trans_type t, float factor);
 
+    void moveCamera(trans_type t, float dist);
+
+    void shift_Camera(float x, float y, float z);
+
+    void rotateCamera(float x, float y, float z);
+
 private:
     void render_all();
 
@@ -47,7 +53,11 @@ private:
 
     void rasterBarTriangle(Vertex p1_, Vertex p2_, Vertex p3_);
 
-    bool testAndSet(Vec3f p);
+    bool testAndSet(const Vec3f& p);
+
+    bool backfaceCulling(const Vertex& a, const Vertex& b, const Vertex& c);
+
+    bool clip(const Vertex& p);
 
 
 private:
@@ -61,5 +71,6 @@ private:
     QGraphicsScene *scene;
     std::shared_ptr<PixelShaderInterface> pixel_shader;
     std::shared_ptr<VertexShaderInterface> vertex_shader;
+    std::shared_ptr<GeometryShaderInterface> geom_shader;
 };
 #endif // SCENE_MANAGER_H

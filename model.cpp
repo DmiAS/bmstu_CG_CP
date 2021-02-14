@@ -22,7 +22,5 @@ Model::Model(const std::string& fileName){
         for (int j = 0; j < curMesh.Indices.size(); j++ )
             index_buffer.push_back(curMesh.Indices[j]);
     }
-
-    transform_matrix = Mat4x4f::Identity();
 }
 

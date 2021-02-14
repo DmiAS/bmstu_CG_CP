@@ -17,12 +17,12 @@ public:
         return Vec3<T2>(T2(x), T2(y), T2(z));
     }
 
-    Vec3 normalize(){
+    Vec3 normalize() const{
         const T length = len();
         return Vec3{x/length, y/length, z/length};
     }
 
-    T len(){
+    T len() const{
         return std::sqrt(x * x + y * y + z * z);
     }
 
@@ -105,6 +105,21 @@ public:
 
     Vec3 reflect(Vec3 direction, Vec3 normal){
         return direction - 2.f * Vec3::dot(direction, normal) * normal;
+    }
+
+    Vec3 hadamard(const Vec3& v) const{
+        Vec3 out(*this);
+        out.x *= v.x;
+        out.y *= v.y;
+        out.z *= v.z;
+        return out;
+    }
+
+    Vec3& saturate(){
+        x = std::min((T)1.f, std::max((T)0.f, x));
+        y = std::min((T)1.f, std::max((T)0.f, y));
+        z = std::min((T)1.f, std::max((T)0.f, z));
+        return *this;
     }
 
     public:

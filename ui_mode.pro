@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     bary.cpp \
+    geometry_shader.cpp \
     main.cpp \
     mainwindow.cpp \
     manager.cpp \
@@ -30,6 +31,7 @@ HEADERS += \
     bary.h \
     camera.h \
     color_shader.h \
+    geometry_shader.h \
     mainwindow.h \
     mat.h \
     model.h \

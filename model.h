@@ -75,6 +75,11 @@ public:
                Mat4x4f::Translation(shift_x, shift_y, shift_z);
     }
 
+    void setColor(const Vec3f& color){
+        for (auto& v: vertex_buffer)
+            v.color = color;
+    }
+
 private:
     float wrap_angle(float curr_angle, float next_angle, float step){
         if (next_angle < curr_angle)
@@ -86,9 +91,9 @@ private:
 public:
     std::vector<uint32_t> index_buffer;
     std::vector<Vertex> vertex_buffer;
-    Mat4x4f transform_matrix;
     Mat4x4f rotation_matrix = Mat4x4f::Identity();
     Mat4x4f scale_matrix;
+
 private:
     float angle_x = 0.f, angle_y = 0.f, angle_z = 0.f;
     float shift_x, shift_y, shift_z;
