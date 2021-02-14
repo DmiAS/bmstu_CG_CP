@@ -19,8 +19,8 @@ void SceneManager::init(){
     models.push_back(Model("C:\\raster\\ui_mode\\pyramyd.obj"));
     models[0].setColor(Vec3f(1, 0, 0));
 //    models[0].shiftZ(2);
-//    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
-    pixel_shader = std::make_shared<ColorShader>();
+    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
+//    pixel_shader = std::make_shared<ColorShader>();
     vertex_shader = std::make_shared<VertexShader>();
     geom_shader = std::make_shared<GeometryShader>();
     render_all();
@@ -65,7 +65,7 @@ bool SceneManager::clip(const Vertex& v){
 
 void SceneManager::rasterize(Model& model){
     auto cam = camers[curr_camera];
-    qDebug() << cam.position.x << cam.position.y << cam.position.z;
+//    qDebug() << cam.position.x << cam.position.y << cam.position.z;
     auto rotation_matrix = model.rotation_matrix;
     auto objToWorld = model.objToWorld();
     auto viewMatrix = cam.viewMatrix();
@@ -194,31 +194,34 @@ void SceneManager::scale(trans_type t, float factor){
 }
 
 void SceneManager::moveCamera(trans_type t, float dist){
-    dist *= -1;
     auto& cam = camers[curr_camera];
-    float x_shift = 0, y_shift = 0, z_shift = 0;
+    std::function<void ()> change_func;
     switch (t) {
     case shift_x:
-        x_shift = dist;
-//        cam.shiftX(dist);
-        break;
-    case shift_y:
-        y_shift = dist;
-//        cam.shiftY(dist);
+        change_func = [&](){
+            cam.shiftX(dist);
+        };
         break;
     case shift_z:
-        z_shift = dist;
-//        cam.shiftZ(dist);
+        change_func = [&](){
+            cam.shiftZ(dist);
+        };
+        break;
+    case rot_x:
+        change_func = [&](){
+            cam.rotateX(dist);
+        };
+        break;
+    case rot_y:
+        change_func = [&](){
+            cam.rotateY(dist);
+        };
+        break;
+    default:
+        return;
     }
 
-    for (auto &model : models){
-        model.shiftX(x_shift);
-        model.shiftY(y_shift);
-        model.shiftZ(z_shift);
-    }
-
-    qDebug() << t << shift_x << shift_y << shift_z;
-    qDebug() << cam.position.x << cam.position.y << cam.position.z;
+    change_func();
 
     render_all();
 }

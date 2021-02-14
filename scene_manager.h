@@ -40,6 +40,10 @@ public:
 
     void moveCamera(trans_type t, float dist);
 
+    void shift_Camera(float x, float y, float z);
+
+    void rotateCamera(float x, float y, float z);
+
 private:
     void render_all();
 

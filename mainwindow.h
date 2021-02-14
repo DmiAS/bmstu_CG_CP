@@ -17,8 +17,6 @@ public:
     SceneManager manager;
     ~MainWindow();
 
-protected:
-    void keyPressEvent(QKeyEvent *event);
 
 private slots:
     void on_render_button_clicked();
@@ -48,7 +46,11 @@ private:
 
 class Filter: public QObject{
     Q_OBJECT
+public:
+    Filter(std::function<void (trans_type, float)> f_): f{f_}{}
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
+private:
+    std::function<void (trans_type, float)> f;
 };
 #endif // MAINWINDOW_H

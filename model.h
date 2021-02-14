@@ -94,6 +94,7 @@ public:
     Mat4x4f transform_matrix;
     Mat4x4f rotation_matrix = Mat4x4f::Identity();
     Mat4x4f scale_matrix;
+
 private:
     float angle_x = 0.f, angle_y = 0.f, angle_z = 0.f;
     float shift_x, shift_y, shift_z;

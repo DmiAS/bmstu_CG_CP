@@ -17,12 +17,12 @@ public:
         return Vec3<T2>(T2(x), T2(y), T2(z));
     }
 
-    Vec3 normalize(){
+    Vec3 normalize() const{
         const T length = len();
         return Vec3{x/length, y/length, z/length};
     }
 
-    T len(){
+    T len() const{
         return std::sqrt(x * x + y * y + z * z);
     }
 

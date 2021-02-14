@@ -2,6 +2,7 @@
 #define CAMERA_H
 #include "vec3.h"
 #include "mat.h"
+#include <QDebug>
 
 class Camera{
 public:
@@ -16,20 +17,51 @@ public:
     }
 
     Mat4x4f viewMatrix() const{
-        return Mat4x4f::LookAtLH(position, direction, up);
+        return Mat4x4f::LookAtLH(position, position + direction, up);
     }
 
     void shiftX(float dist){
-        position.x += dist;
+        auto normal = Vec3f::cross(direction, up).normalize();
+        normal *= dist;
+        position += normal;
     }
-    void shiftY(float dist){
-        position.y += dist;
-    }
+
     void shiftZ(float dist){
-        position.z += dist;
+        position += direction.normalize() * dist;
     }
 
 
+    void rotateX(float angle){
+        auto normal = Vec3f::cross(direction, up);
+        up = rotateQautr(normal, up, angle);
+        direction = rotateQautr(normal, direction, angle);
+    }
+
+    void rotateY(float angle){
+        // поворот относительно вектора up
+        direction = rotateQautr(up, direction, angle);
+    }
+
+private:
+
+    Vec3f rotateQautr(const Vec3f& axis, const Vec3f& v, const float& angle){
+        auto u = Vec4f(v, 0) ;
+        auto teta = angle * M_PI / 180.f;
+        auto q = Vec4f(axis.normalize(), cos(teta * 0.5));
+        auto sin_teta = sin(teta * 0.5);
+        q.x *= sin_teta;
+        q.y *= sin_teta;
+        q.z *= sin_teta;
+
+        auto v1 = Vec3f(q.x, q.y, q.z);
+        auto v2 = Vec3f(u.x, u.y, u.z);
+        auto qu = v2 * q.w + Vec3f::cross(v1, v2);
+
+        v1 = Vec3f{qu.x, qu.y, qu.z};
+        v2 = Vec3f{-q.x, -q.y, -q.z};
+
+        return v1 * q.w + Vec3f::cross(v1, v2);
+    }
 
 public:
     Vec3f position;

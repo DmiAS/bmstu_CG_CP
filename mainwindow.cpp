@@ -15,7 +15,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->canvas->setScene(new QGraphicsScene(0, 0, width, height));
 
-    auto filter = new Filter;
+    auto f = [&](trans_type t, float dist){
+        manager.moveCamera(t, dist);
+    };
+
+    auto filter = new Filter(f);
     ui->canvas->installEventFilter(filter);
 
     manager = SceneManager(width, height, Qt::black, ui->canvas->scene());
@@ -124,46 +128,40 @@ void MainWindow::on_scale_y_spin_valueChanged(double arg1)
     manager.scale(scale_y, step);
 }
 
-const int w = 17, d = 32, a = 30, s = 31, move_dist= 1;
-void MainWindow::keyPressEvent(QKeyEvent *event){
-    // w = 17 d = 32 a = 30 s = 31
-
-    switch (event->nativeScanCode()) {
-    case w:
-        manager.moveCamera(shift_z, move_dist);
-        break;
-    case d:
-        manager.moveCamera(shift_x, move_dist);
-        break;
-    case a:
-        manager.moveCamera(shift_x, -move_dist);
-        break;
-    case s:
-        manager.moveCamera(shift_z, -move_dist);
-        break;
-    }
-}
+const int w = 17, d = 32, a = 30, s = 31;
+float move_dist= 0.5;
+const int pUp = 328, pDn = 336, home = 331, end = 333, rot_angle = 15;
 
 bool Filter::eventFilter(QObject *obj, QEvent *event){
     if (event->type() == QEvent::KeyPress){
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-//        switch (keyEvent->nativeScanCode()) {
-//        case w:
-//            manager.moveCamera(shift_z, move_dist);
-//            break;
-//        case d:
-//            manager.moveCamera(shift_x, move_dist);
-//            break;
-//        case a:
-//            manager.moveCamera(shift_x, -move_dist);
-//            break;
-//        case s:
-//            manager.moveCamera(shift_z, -move_dist);
-//            break;
-//        }
+        switch (keyEvent->nativeScanCode()) {
+        case w:
+            f(shift_z, move_dist);
+            break;
+        case d:
+            f(shift_x, -move_dist);
+            break;
+        case a:
+            f(shift_x, move_dist);
+            break;
+        case s:
+            f(shift_z, -move_dist);
+            break;
+        case pUp:
+            f(rot_x, rot_angle);
+            break;
+        case pDn:
+            f(rot_x, -rot_angle);
+            break;
+        case home:
+            f(rot_y, -rot_angle);
+            break;
+        case end:
+            f(rot_y, rot_angle);
+            break;
+        }
         return true;
-    }else {
-        // standard event processing
-        return QObject::eventFilter(obj, event);
     }
+    return QObject::eventFilter(obj, event);
 }
