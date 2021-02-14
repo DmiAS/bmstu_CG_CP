@@ -16,7 +16,7 @@ void denormolize(int width, int height, Vertex& v){
 
 
 void SceneManager::init(){
-    models.push_back(Model("C:\\raster\\ui_mode\\pyramyd.obj"));
+    models.push_back(Model("C:\\raster\\ui_mode\\cube.obj"));
     models[0].setColor(Vec3f(0, 0, 1));
 //    models[0].shiftZ(2);
 //    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
@@ -41,15 +41,17 @@ void SceneManager::render_all(){
 bool SceneManager::backfaceCulling(const Vertex &a, const Vertex &b, const Vertex &c){
     auto cam = camers[curr_camera];
 
-    auto normal = Vec3f::cross(b.pos - a.pos, c.pos - b.pos).normalize();
-    auto res1 = Vec3f::dot(normal, b.pos - cam.position);
-    auto res2 = Vec3f::dot(normal, c.pos - cam.position);
-    auto res3 = Vec3f::dot(normal, a.pos - cam.position);
+//    auto face_normal = Vec3f::cross(b.pos - a.pos, c.pos - b.pos);
+//    if (Vec3f::dot(face_normal, a.normal) < 0)
+//        face_normal *= -1.f;
 
-    if (res1 > 0 && res2 > 0 && res3 > 0)
+    auto res1 = Vec3f::dot(a.normal, cam.direction);
+    auto res2 = Vec3f::dot(b.normal, cam.direction);
+    auto res3 = Vec3f::dot(c.normal, cam.direction);
+//    qDebug() << cam.position.x << cam.position.y << cam.position.z;
+
+    if ((res1 > 0 || fabs(res1) < eps) && (res2 > 0 || fabs(res2) < eps) && (res3 > 0 || fabs(res3) < eps))
         return true;
-//    if ( (res1 > 0 || fabs(res1) < eps) && (res2 > 0 || fabs(res2) < eps) && (res3 > 0 || fabs(res3) < eps))
-//        return true;
     return false;
 }
 
@@ -65,7 +67,6 @@ bool SceneManager::clip(const Vertex& v){
 
 void SceneManager::rasterize(Model& model){
     auto cam = camers[curr_camera];
-//    qDebug() << cam.position.x << cam.position.y << cam.position.z;
     auto rotation_matrix = model.rotation_matrix;
     auto objToWorld = model.objToWorld();
     auto viewMatrix = cam.viewMatrix();
@@ -76,8 +77,8 @@ void SceneManager::rasterize(Model& model){
         auto b = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 1]], rotation_matrix, objToWorld, cam);
         auto c = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 2]], rotation_matrix, objToWorld, cam);
 
-//        if (backfaceCulling(a, b, c))
-//            continue;
+        if (backfaceCulling(a, b, c))
+            continue;
 
         a = geom_shader->shade(a, projMatrix);
         b = geom_shader->shade(b, projMatrix);
@@ -93,9 +94,6 @@ void SceneManager::rasterBarTriangle(Vertex p1_, Vertex p2_, Vertex p3_){
 
 
     if (!clip(p1_) && !clip(p2_) && !clip(p3_)){
-//        qDebug() << p1_.pos.x << p1_.pos.y << p1_.pos.z;
-//        qDebug() << p2_.pos.x << p2_.pos.y << p2_.pos.z;
-//        qDebug() << p3_.pos.x << p3_.pos.y << p3_.pos.z;
         return;
     }
 
