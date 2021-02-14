@@ -10,10 +10,9 @@ Vertex VertexShader::shade(const Vertex &a, const Mat4x4f& rotMatrix, const Mat4
 
     auto normal4 = Vec4f(a.normal) * rotMatrix;
     auto normal3 = Vec3f(normal4.x, normal4.y, normal4.z);
-    auto cos_light = std::max(0.f, normal3.normalize() * -dir.normalize());
-    const auto d = diffuse.hadamard(intensity * cos_light);
-    const auto amb = Vec3f{0.5f, 0.f, 0.f}.hadamard(Vec3f{0.4f, 0.4f, 0.4f});
-    const auto c = (d + ambient).saturate();
-    output.color = d;
+
+    auto diffuse = light_color * std::max(0.f, normal3.normalize() * -dir.normalize()) * intensity;
+    auto c = (diffuse + ambient).saturate();
+    output.color = output.color.hadamard(c);
     return output;
 }

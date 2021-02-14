@@ -91,7 +91,6 @@ private:
 public:
     std::vector<uint32_t> index_buffer;
     std::vector<Vertex> vertex_buffer;
-    Mat4x4f transform_matrix;
     Mat4x4f rotation_matrix = Mat4x4f::Identity();
     Mat4x4f scale_matrix;
 

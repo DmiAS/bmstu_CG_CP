@@ -17,10 +17,10 @@ void denormolize(int width, int height, Vertex& v){
 
 void SceneManager::init(){
     models.push_back(Model("C:\\raster\\ui_mode\\pyramyd.obj"));
-    models[0].setColor(Vec3f(1, 0, 0));
+    models[0].setColor(Vec3f(0, 0, 1));
 //    models[0].shiftZ(2);
-    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
-//    pixel_shader = std::make_shared<ColorShader>();
+//    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
+    pixel_shader = std::make_shared<ColorShader>();
     vertex_shader = std::make_shared<VertexShader>();
     geom_shader = std::make_shared<GeometryShader>();
     render_all();
