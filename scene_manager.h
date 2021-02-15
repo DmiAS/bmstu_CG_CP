@@ -44,6 +44,12 @@ public:
 
     void rotateCamera(float x, float y, float z);
 
+    void uploadModel(std::string name, uint32_t& uid);
+
+    void removeModel();
+
+    void setCurrentModel(uint32_t uid);
+
 private:
     void render_all();
 
@@ -72,5 +78,7 @@ private:
     std::shared_ptr<PixelShaderInterface> pixel_shader;
     std::shared_ptr<VertexShaderInterface> vertex_shader;
     std::shared_ptr<GeometryShaderInterface> geom_shader;
+    uint32_t models_index = 1;
+    int current_model = 0;
 };
 #endif // SCENE_MANAGER_H

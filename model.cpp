@@ -2,7 +2,8 @@
 #include "OBJ_Loader.h"
 #include <QtDebug>
 
-Model::Model(const std::string& fileName){
+Model::Model(const std::string& fileName, uint32_t uid_){
+    uid = uid_;
     objl::Loader loader;
     bool l = loader.LoadFile(fileName);
     qDebug() <<"mean = " << l;

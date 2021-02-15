@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 #include <QMainWindow>
 #include <QKeyEvent>
+#include <QStringListModel>
 #include "scene_manager.h"
 
 QT_BEGIN_NAMESPACE
@@ -19,6 +20,8 @@ public:
 
 
 private slots:
+    void fetch(QModelIndex index);
+
     void on_render_button_clicked();
 
     void on_rotate_x_spin_valueChanged(double arg1);
@@ -40,8 +43,15 @@ private slots:
     void on_scale_y_spin_valueChanged(double arg1);
 
 
+    void on_add_object_button_clicked();
+
+    void on_delete_object_button_clicked();
+
 private:
     Ui::MainWindow *ui;
+    QStringListModel *model;
+    std::map<QString, uint32_t> text_uid;
+    std::map<QString, uint32_t> name_amount;
 };
 
 class Filter: public QObject{

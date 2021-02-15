@@ -10,7 +10,7 @@ Vec3f TextureShader::shade(const Vertex &a, const Vertex &b, const Vertex &c, co
     float pixel_z = interPolateCord(a.invW, b.invW, c.invW, bary);
     float invZ = 1 / pixel_z;
 
-//    auto pixel_color = baryCentricInterpolation(a.color, b.color, c.color, bary);
+    auto face_color = baryCentricInterpolation(a.color, b.color, c.color, bary);
 
     float pixel_u = interPolateCord(a.u , b.u, c.u, bary) * invZ;
     float pixel_v = interPolateCord(a.v, b.v, c.v, bary) * invZ;
@@ -19,7 +19,10 @@ Vec3f TextureShader::shade(const Vertex &a, const Vertex &b, const Vertex &c, co
     int y = std::floor(pixel_v * (texture.height() - 1));
 
     auto color = texture.pixelColor(x, y);
-    Vec3f pixel_color = Vec3f{(float)color.red(), (float)color.green(), (float)color.blue()};
+    Vec3f pixel_color = Vec3f{float(color.red() % 256), float(color.green() % 256), float(color.blue() % 256)};
 
-    return pixel_color;
+    auto t = pixel_color.normalize().hadamard(face_color).saturate() * 255.f;
+//    pixel_color = pixel_color.hadamard(face_color).saturate() * 255.f;
+
+    return t;
 }

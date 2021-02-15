@@ -206,7 +206,7 @@
      <string>Удалить</string>
     </property>
    </widget>
-   <widget class="QListView" name="refraction">
+   <widget class="QListView" name="scene_list">
     <property name="geometry">
      <rect>
       <x>1400</x>

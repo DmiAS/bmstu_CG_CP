@@ -24,12 +24,39 @@ MainWindow::MainWindow(QWidget *parent)
 
     manager = SceneManager(width, height, Qt::black, ui->canvas->scene());
 
-    QWidget::setEnabled(true);
+    const QStringList textures = {
+        "Куб",
+        "Сфера",
+        "Пирамида",
+        "Цилиндр",
+        "Конус"
+    };
+
+    ui->objects_list->addItems(textures);
+
+    auto stringList = new QStringList();
+    model = new QStringListModel(*stringList);
+//    model->event
+
+    ui->scene_list->setModel(model);
+    ui->scene_list->setEditTriggers(QAbstractItemView::NoEditTriggers);
+//    ui->scene_list->setSelectionMode(QAbstractItemView::Selec);
+
+    connect(ui->scene_list, SIGNAL(clicked(QModelIndex)), this, SLOT(fetch(QModelIndex)));
+
+    manager.init();
 }
+
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::fetch(QModelIndex index){
+    if (!index.isValid()) return;
+    auto text = model->index(index.row()).data(Qt::DisplayRole).toString();
+    manager.setCurrentModel(text_uid.at(text));
 }
 
 
@@ -164,4 +191,35 @@ bool Filter::eventFilter(QObject *obj, QEvent *event){
         return true;
     }
     return QObject::eventFilter(obj, event);
+}
+
+void MainWindow::on_add_object_button_clicked()
+{
+    auto text = ui->objects_list->currentText();
+    auto updated_text = text;
+    if (!name_amount.count(text))
+        name_amount.insert({text, 0});
+    else{
+        auto val = ++name_amount.at(text);
+        updated_text += QString("%1").arg(val);
+    }
+    uint32_t uid = 0;
+    manager.uploadModel(text.toStdString(), uid);
+
+    if (uid){
+        model->insertRow(model->rowCount());
+        QModelIndex index = model->index(model->rowCount()-1);
+        model->setData(index, updated_text);
+        text_uid.insert({updated_text, uid});
+    }
+    return;
+
+}
+
+void MainWindow::on_delete_object_button_clicked()
+{
+    auto index = ui->scene_list->currentIndex();
+    if (!index.isValid()) return;
+    model->removeRow(index.row());
+    manager.removeModel();
 }

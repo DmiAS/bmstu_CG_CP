@@ -16,9 +16,6 @@ void denormolize(int width, int height, Vertex& v){
 
 
 void SceneManager::init(){
-    models.push_back(Model("C:\\raster\\ui_mode\\cube.obj"));
-    models[0].setColor(Vec3f(0, 0, 1));
-//    models[0].shiftZ(2);
 //    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
     pixel_shader = std::make_shared<ColorShader>();
     vertex_shader = std::make_shared<VertexShader>();
@@ -77,8 +74,8 @@ void SceneManager::rasterize(Model& model){
         auto b = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 1]], rotation_matrix, objToWorld, cam);
         auto c = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 2]], rotation_matrix, objToWorld, cam);
 
-        if (backfaceCulling(a, b, c))
-            continue;
+//        if (backfaceCulling(a, b, c))
+//            continue;
 
         a = geom_shader->shade(a, projMatrix);
         b = geom_shader->shade(b, projMatrix);
@@ -149,13 +146,13 @@ void SceneManager::show(){
 void SceneManager::shift(trans_type t, float val){
     switch (t) {
     case shift_x:
-        models[0].shiftX(val);
+        models[current_model].shiftX(val);
         break;
     case shift_y:
-        models[0].shiftY(val);
+        models[current_model].shiftY(val);
         break;
     case shift_z:
-        models[0].shiftZ(val);
+        models[current_model].shiftZ(val);
     }
 
     render_all();
@@ -164,13 +161,13 @@ void SceneManager::shift(trans_type t, float val){
 void SceneManager::rotate(trans_type t, float angle){
     switch (t) {
     case rot_x:
-        models[0].rotateX(angle);
+        models[current_model].rotateX(angle);
         break;
     case rot_y:
-        models[0].rotateY(angle);
+        models[current_model].rotateY(angle);
         break;
     case rot_z:
-        models[0].rotateZ(angle);
+        models[current_model].rotateZ(angle);
     }
 
     render_all();
@@ -179,13 +176,13 @@ void SceneManager::rotate(trans_type t, float angle){
 void SceneManager::scale(trans_type t, float factor){
     switch (t) {
     case scale_x:
-        models[0].scaleX(factor);
+        models[current_model].scaleX(factor);
         break;
     case scale_y:
-        models[0].scaleY(factor);
+        models[current_model].scaleY(factor);
         break;
     case scale_z:
-        models[0].scaleZ(factor);
+        models[current_model].scaleZ(factor);
     }
 
     render_all();
@@ -222,4 +219,37 @@ void SceneManager::moveCamera(trans_type t, float dist){
     change_func();
 
     render_all();
+}
+
+void SceneManager::uploadModel(std::string name, uint32_t& uid){
+
+    const std::map<std::string, std::string> files = {
+        {"Куб", "C:\\raster\\ui_mode\\cube.obj"},
+        {"Сфера", "C:\\raster\\ui_mode\\sphere.obj"},
+        {"Пирамида", "C:\\raster\\ui_mode\\pyramyd.obj"},
+        {"Конус", "C:\\raster\\ui_mode\\conus.obj"},
+    };
+
+    if (!files.count(name))
+        return;
+
+    uid = models_index++;
+    models.push_back(Model(files.at(name), uid));
+
+    render_all();
+}
+
+
+void SceneManager::removeModel(){
+    models.erase(models.begin() + current_model);
+    render_all();
+}
+
+void SceneManager::setCurrentModel(uint32_t uid){
+    auto it = models.begin();
+    int i = 0;
+    for (; it <  models.end(); it++, i++)
+        if (it->getUid() == uid)
+            break;
+    current_model = i;
 }
