@@ -39,14 +39,13 @@ void SceneManager::render_all(){
 bool SceneManager::backfaceCulling(const Vertex &a, const Vertex &b, const Vertex &c){
     auto cam = camers[curr_camera];
 
-//    auto face_normal = Vec3f::cross(b.pos - a.pos, c.pos - b.pos);
+    auto face_normal = Vec3f::cross(b.pos - a.pos, c.pos - b.pos);
 //    if (Vec3f::dot(face_normal, a.normal) < 0)
 //        face_normal *= -1.f;
 
-    auto res1 = Vec3f::dot(a.normal, cam.direction);
-    auto res2 = Vec3f::dot(b.normal, cam.direction);
-    auto res3 = Vec3f::dot(c.normal, cam.direction);
-//    qDebug() << cam.position.x << cam.position.y << cam.position.z;
+    auto res1 = Vec3f::dot(face_normal, a.pos - cam.position);
+    auto res2 = Vec3f::dot(face_normal, b.pos - cam.position);
+    auto res3 = Vec3f::dot(face_normal, c.pos - cam.position);
 
     if ((res1 > 0 || fabs(res1) < eps) && (res2 > 0 || fabs(res2) < eps) && (res3 > 0 || fabs(res3) < eps))
         return true;
@@ -86,14 +85,21 @@ void SceneManager::rasterize(Model& model){
     }
 }
 
+bool winding_order(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3){
+//    Vec3f edge0, edge1;
+    return 0 > (p2.x - p1.x) * (p2.y - p1.y) + (p3.x - p2.x) * (p3.y - p2.y);
+}
+
 #define Min(val1, val2) std::min(val1, val2)
 #define Max(val1, val2) std::max(val1, val2)
 void SceneManager::rasterBarTriangle(Vertex p1_, Vertex p2_, Vertex p3_){
 
-
     if (!clip(p1_) && !clip(p2_) && !clip(p3_)){
         return;
     }
+
+//    // winding order test
+//    if (winding_order(p1_.pos, p2_.pos, p3_.pos)) return;
 
     denormolize(width, height, p1_);
     denormolize(width, height, p2_);
@@ -119,7 +125,7 @@ void SceneManager::rasterBarTriangle(Vertex p1_, Vertex p2_, Vertex p3_){
                 interpolated.x = x;
                 interpolated.y = y;
                 if (testAndSet(interpolated)){
-                    auto pixel_color = pixel_shader->shade(p1_, p2_, p3_, bary);
+                    auto pixel_color = pixel_shader->shade(p1_, p2_, p3_, bary) * 255.f;
 //                    qDebug() << pixel_color.x, pixel_color.y, pixel_color.z;
                     img.setPixelColor(x, y, qRgb(pixel_color.x, pixel_color.y, pixel_color.z));
                 }
@@ -253,4 +259,9 @@ void SceneManager::setCurrentModel(uint32_t uid){
         if (it->getUid() == uid)
             break;
     current_model = i;
+}
+
+void SceneManager::setColor(const Vec3f &color){
+    models[current_model].setColor(color);
+    render_all();
 }

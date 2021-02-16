@@ -550,6 +550,9 @@
     <property name="text">
      <string>Цвет</string>
     </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QPushButton" name="color_add_button">
     <property name="geometry">
@@ -684,6 +687,28 @@
     </property>
     <property name="text">
      <string>Преломление</string>
+    </property>
+   </widget>
+   <widget class="QGraphicsView" name="color_preview">
+    <property name="geometry">
+     <rect>
+      <x>1551</x>
+      <y>669</y>
+      <width>131</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+    <property name="backgroundBrush">
+     <brush brushstyle="NoBrush">
+      <color alpha="255">
+       <red>128</red>
+       <green>128</green>
+       <blue>128</blue>
+      </color>
+     </brush>
     </property>
    </widget>
   </widget>

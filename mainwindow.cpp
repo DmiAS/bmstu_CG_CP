@@ -105,6 +105,11 @@ void MainWindow::save_data(UI_data& data){
     data.scale_y = ui->scale_y_spin->value();
     data.scale_z = ui->scale_z_spin->value();
 
+    auto color = ui->color_preview->backgroundBrush().color();
+    qDebug() << "color = " << color.redF();
+
+//    data.color = Vec3f(color.redF() / )
+
 }
 
 void MainWindow::changeHidence(bool flag){
@@ -134,6 +139,7 @@ void MainWindow::changeHidence(bool flag){
 
     ui->color_flag->setHidden(flag);
     ui->color_add_button->setHidden(flag);
+    ui->color_preview->setHidden(flag);
 
     ui->reflection_spin->setHidden(flag);
     ui->refraction_spin->setHidden(flag);
@@ -333,4 +339,24 @@ void MainWindow::on_delete_object_button_clicked()
     prev_selected = "";
     hideButtons();
     manager.removeModel();
+}
+
+void MainWindow::on_color_add_button_clicked()
+{
+    QColor color = QColorDialog::getColor(Qt::gray, this, QStringLiteral("Выберите цвет модели"));
+    qDebug() << "picked";
+    if (!color.isValid()) return;
+    auto cred = QString::number(color.red()).toFloat();
+    auto cgreen = QString::number(color.green()).toFloat();
+    auto cblue = QString::number(color.blue()).toFloat();
+
+    auto brush = ui->color_preview->backgroundBrush();
+    brush.setColor(QColor(cred, cgreen, cblue));
+    ui->color_preview->setBackgroundBrush(brush);
+
+    manager.setColor(Vec3f(cred / 255.f, cgreen / 255.f, cblue / 255.f));
+
+
+//        QPushButton *pushButton = qobject_cast<QPushButton *>(sender());
+//        pushButton->setIcon(createColorIcon(QColor(cred, cgreen, cblue, calpha)));
 }

@@ -5,6 +5,7 @@
 template <typename T>
 class Vec3{
 public:
+    Vec3() = default;
     Vec3(T x_, T y_, T z_ = 0): x(x_), y(y_), z(z_){}
     Vec3(const Vec3& vect){
         x = vect.x;

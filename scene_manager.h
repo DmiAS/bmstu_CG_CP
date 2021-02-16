@@ -50,6 +50,8 @@ public:
 
     void setCurrentModel(uint32_t uid);
 
+    void setColor(const Vec3f& color);
+
 private:
     void render_all();
 
