@@ -52,6 +52,10 @@ public:
 
     void setColor(const Vec3f& color);
 
+    void setFlagTexture(bool flag, const Vec3f& color);
+
+    void setTexture(const QImage& img);
+
 private:
     void render_all();
 

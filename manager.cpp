@@ -16,8 +16,8 @@ void denormolize(int width, int height, Vertex& v){
 
 
 void SceneManager::init(){
-    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
-//    pixel_shader = std::make_shared<ColorShader>();
+//    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
+    pixel_shader = std::make_shared<ColorShader>();
     vertex_shader = std::make_shared<VertexShader>();
     geom_shader = std::make_shared<GeometryShader>();
     render_all();
@@ -31,8 +31,13 @@ void SceneManager::render_all(){
     for (auto& vec: depthBuffer)
         std::fill(vec.begin(), vec.end(), std::numeric_limits<float>::max());
 
-    for (auto& model: models)
+    for (auto& model: models){
+        if (model.has_texture)
+            pixel_shader = std::make_shared<TextureShader>(model.texture);
+        else
+            pixel_shader = std::make_shared<ColorShader>();
         rasterize(model);
+    }
     show();
 }
 
@@ -147,6 +152,8 @@ bool SceneManager::testAndSet(const Vec3f& p){
 }
 
 void SceneManager::show(){
+//    scene->pix
+    scene->clear();
     scene->addPixmap(QPixmap::fromImage(img));
 }
 
@@ -262,6 +269,19 @@ void SceneManager::setCurrentModel(uint32_t uid){
 }
 
 void SceneManager::setColor(const Vec3f &color){
+    models[current_model].setColor(color);
+    render_all();
+}
+
+void SceneManager::setTexture(const QImage &img){
+    models[current_model].has_texture = true;
+    models[current_model].setColor(Vec3f{1.f, 1.f, 1.f});
+    models[current_model].texture = img;
+    render_all();
+}
+
+void SceneManager::setFlagTexture(bool flag, const Vec3f& color){
+    models[current_model].has_texture = flag;
     models[current_model].setColor(color);
     render_all();
 }

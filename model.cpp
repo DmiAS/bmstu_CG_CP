@@ -15,12 +15,15 @@ Model::Model(const std::string& fileName, uint32_t uid_){
             vertex_buffer.push_back(Vertex{
                                    Vec3f{curMesh.Vertices[j].Position.X , curMesh.Vertices[j].Position.Y, curMesh.Vertices[j].Position.Z},
                                    Vec3f{curMesh.Vertices[j].Normal.X,  curMesh.Vertices[j].Normal.Y, curMesh.Vertices[j].Normal.Z},
-                                   curMesh.Vertices[j].TextureCoordinate.X, curMesh.Vertices[j].TextureCoordinate.Y
+                                   curMesh.Vertices[j].TextureCoordinate.X, curMesh.Vertices[j].TextureCoordinate.Y,
+                                        {0.5, 0.5, 0.5}
                                });
         }
 
         for (int j = 0; j < curMesh.Indices.size(); j++ )
             index_buffer.push_back(curMesh.Indices[j]);
     }
+
+    texture.load("C:\\raster\\ui_mode\\bricks.jpg");
 }
 

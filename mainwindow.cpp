@@ -104,6 +104,10 @@ void MainWindow::fill_data(const UI_data& data){
     ui->color_preview->scene()->setBackgroundBrush(
                 QColor(data.color.x *255.f, data.color.y * 255.f, data.color.z * 255.f));
 
+    // block and lock buttons for adding color and texture
+    ui->color_add_button->setDisabled(data.texture_flag);
+    ui->add_texture_button->setDisabled(data.color_flag);
+
     lockSignals(false);
 
 }
@@ -374,15 +378,33 @@ void MainWindow::on_color_add_button_clicked()
 //    ui->color_preview->scene()->setBackgroundBrush(QBrush(QColor(cred, cgreen, cblue)));
     ui->color_preview->scene()->setBackgroundBrush(QColor(cred, cgreen, cblue));
 
-    manager.setColor(Vec3f(cred / 255.f, cgreen / 255.f, cblue / 255.f));
+    auto color_f = Vec3f(cred / 255.f, cgreen / 255.f, cblue / 255.f);
+    manager.setColor(color_f);
+    name_data.at(prev_selected).color = color_f;
 
-
-//        QPushButton *pushButton = qobject_cast<QPushButton *>(sender());
-//        pushButton->setIcon(createColorIcon(QColor(cred, cgreen, cblue, calpha)));
 }
 
 void MainWindow::on_texture_flag_clicked()
 {
+    ui->add_texture_button->setDisabled(false);
     auto img = name_data.at(prev_selected).img;
     ui->texture_img->scene()->addPixmap(QPixmap::fromImage(img));
+    ui->color_add_button->setDisabled(true);
+    manager.setFlagTexture(true, Vec3f{1.f, 1.f, 1.f});
+}
+
+void MainWindow::on_color_flag_clicked()
+{
+    ui->color_add_button->setDisabled(false);
+    ui->add_texture_button->setDisabled(true);
+    manager.setFlagTexture(false, name_data.at(prev_selected).color);
+}
+
+void MainWindow::on_add_texture_button_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Выберите текстуру" );
+    QImage img;
+    img.load(fileName);
+    name_data.at(prev_selected).img = img;
+    manager.setTexture(img);
 }

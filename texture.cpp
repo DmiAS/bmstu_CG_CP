@@ -2,8 +2,8 @@
 #include "bary.h"
 #include <QtDebug>
 
-TextureShader::TextureShader(const std::string& fileName){
-    texture.load(QString::fromStdString(fileName));
+TextureShader::TextureShader(const QImage& img){
+    texture = img;
 }
 
 Vec3f TextureShader::shade(const Vertex &a, const Vertex &b, const Vertex &c, const Vec3f &bary){

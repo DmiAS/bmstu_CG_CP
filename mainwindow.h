@@ -4,6 +4,7 @@
 #include <QKeyEvent>
 #include <QStringListModel>
 #include <QColorDialog>
+#include <QFileDialog>
 #include "scene_manager.h"
 
 struct UI_data{
@@ -73,6 +74,10 @@ private slots:
     void on_color_add_button_clicked();
 
     void on_texture_flag_clicked();
+
+    void on_color_flag_clicked();
+
+    void on_add_texture_button_clicked();
 
 private:
     Ui::MainWindow *ui;

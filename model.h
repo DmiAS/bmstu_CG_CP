@@ -8,6 +8,7 @@
 #include "vertex.h"
 #include "mat.h"
 #include "shaders.h"
+#include <QImage>
 
 const float max_angle = 360, rot_step_x = 15, rot_step_y = 15, rot_step_z = 15;
 class Model{
@@ -80,6 +81,7 @@ public:
             v.color = color;
     }
 
+
     uint32_t getUid() const{
         return uid;
     }
@@ -97,6 +99,8 @@ public:
     std::vector<Vertex> vertex_buffer;
     Mat4x4f rotation_matrix = Mat4x4f::Identity();
     Mat4x4f scale_matrix;
+    QImage texture;
+    bool has_texture = false;
 
 private:
     float angle_x = 0.f, angle_y = 0.f, angle_z = 0.f;
