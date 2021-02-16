@@ -7,6 +7,7 @@
 #include "scene_manager.h"
 
 struct UI_data{
+    UI_data();
     uint32_t amount = 0;
 
     float shift_x = 0, shift_y = 0, shift_z = 0;
@@ -16,6 +17,7 @@ struct UI_data{
     bool texture_flag = false, color_flag = true;
 
     Vec3f color = {0.5, 0.5, 0.5};
+    QImage img;
 };
 
 QT_BEGIN_NAMESPACE
@@ -69,6 +71,8 @@ private slots:
     void lockSignals(bool signal);
 
     void on_color_add_button_clicked();
+
+    void on_texture_flag_clicked();
 
 private:
     Ui::MainWindow *ui;

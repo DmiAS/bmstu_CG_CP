@@ -699,16 +699,7 @@
      </rect>
     </property>
     <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
-    <property name="backgroundBrush">
-     <brush brushstyle="NoBrush">
-      <color alpha="255">
-       <red>128</red>
-       <green>128</green>
-       <blue>128</blue>
-      </color>
-     </brush>
+     <bool>false</bool>
     </property>
    </widget>
   </widget>

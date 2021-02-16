@@ -4,6 +4,8 @@
 #include "mat.h"
 #include <QDebug>
 
+const float eps_cam = 1e-5;
+
 class Camera{
 public:
     Camera(float width, float height, Vec3f pos = {0, 0, -5}, Vec3f up = {0, 1, 0}, Vec3f direction = {0, 0, 1},
@@ -32,9 +34,11 @@ public:
 
 
     void rotateX(float angle){
+        if (fabs(fabs(x_rot_angle + angle) - 90.f) < eps_cam)
+            return;
         auto normal = Vec3f::cross(direction, up);
-//        up = rotateQautr(normal, up, angle).normalize();
         direction = rotateQautr(normal, direction, angle);
+        x_rot_angle += angle;
     }
 
     void rotateY(float angle){
@@ -73,6 +77,8 @@ public:
     float zf;
     float aspect_ratio;
     Mat4x4f projectionMatrix;
+private:
+    float x_rot_angle = 0;
 };
 
 #endif // CAMERA_H
