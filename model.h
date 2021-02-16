@@ -14,7 +14,7 @@ class Model{
 
 public:
 
-    Model(const std::string& fileName);
+    Model(const std::string& fileName, uint32_t uid_);
 
     void rotateX(float angle){
         auto step = wrap_angle(angle_x, angle, rot_step_x);
@@ -69,7 +69,7 @@ public:
 //        transform_matrix = Mat4x4f::ScaleZ(factor) * transform_matrix;
     }
 
-    Mat4x4f objToWorld(){
+    Mat4x4f objToWorld() const {
         return Mat4x4f::Scaling(scale_x, scale_y, scale_z) *
                rotation_matrix *
                Mat4x4f::Translation(shift_x, shift_y, shift_z);
@@ -78,6 +78,10 @@ public:
     void setColor(const Vec3f& color){
         for (auto& v: vertex_buffer)
             v.color = color;
+    }
+
+    uint32_t getUid() const{
+        return uid;
     }
 
 private:
@@ -98,5 +102,6 @@ private:
     float angle_x = 0.f, angle_y = 0.f, angle_z = 0.f;
     float shift_x, shift_y, shift_z;
     float scale_x = 1.f, scale_y = 1.f, scale_z = 1.f;
+    uint32_t uid;
 };
 #endif // MODEL_H

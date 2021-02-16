@@ -206,7 +206,7 @@
      <string>Удалить</string>
     </property>
    </widget>
-   <widget class="QListView" name="refraction">
+   <widget class="QListView" name="scene_list">
     <property name="geometry">
      <rect>
       <x>1400</x>
@@ -570,7 +570,7 @@
      <string>Добавить</string>
     </property>
    </widget>
-   <widget class="QLabel" name="reflection">
+   <widget class="QLabel" name="reflection_label">
     <property name="geometry">
      <rect>
       <x>1410</x>
@@ -609,7 +609,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="transparency">
+   <widget class="QLabel" name="transparency_label">
     <property name="geometry">
      <rect>
       <x>1410</x>
@@ -647,7 +647,7 @@
      <string>Блеск</string>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="doubleSpinBox_13">
+   <widget class="QDoubleSpinBox" name="glitter_spin">
     <property name="geometry">
      <rect>
       <x>1566</x>
