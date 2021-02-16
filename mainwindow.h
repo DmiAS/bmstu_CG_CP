@@ -5,6 +5,18 @@
 #include <QStringListModel>
 #include "scene_manager.h"
 
+struct UI_data{
+    uint32_t amount = 0;
+
+    float shift_x = 0, shift_y = 0, shift_z = 0;
+    float rot_x = 0, rot_y = 0, rot_z = 0;
+    float scale_x = 0, scale_y = 0, scale_z = 0;
+
+    bool texture = false, color = true;
+
+
+};
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -47,11 +59,20 @@ private slots:
 
     void on_delete_object_button_clicked();
 
+
+    void fill_data(const UI_data& data);
+    void save_data(UI_data& data);
+    void showButtons();
+    void hideButtons();
+    void changeHidence(bool);
+    void lockSignals(bool signal);
+
 private:
     Ui::MainWindow *ui;
     QStringListModel *model;
     std::map<QString, uint32_t> text_uid;
-    std::map<QString, uint32_t> name_amount;
+    std::map<QString, UI_data> name_data;
+    QString prev_selected = "";
 };
 
 class Filter: public QObject{
@@ -63,4 +84,6 @@ protected:
 private:
     std::function<void (trans_type, float)> f;
 };
+
+
 #endif // MAINWINDOW_H

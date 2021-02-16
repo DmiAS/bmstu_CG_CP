@@ -16,14 +16,15 @@ void denormolize(int width, int height, Vertex& v){
 
 
 void SceneManager::init(){
-//    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
-    pixel_shader = std::make_shared<ColorShader>();
+    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
+//    pixel_shader = std::make_shared<ColorShader>();
     vertex_shader = std::make_shared<VertexShader>();
     geom_shader = std::make_shared<GeometryShader>();
     render_all();
 }
 
 void SceneManager::render_all(){
+//    qDebug() << "rendering";
 
     img.fill(Qt::black);
 

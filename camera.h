@@ -33,7 +33,7 @@ public:
 
     void rotateX(float angle){
         auto normal = Vec3f::cross(direction, up);
-        up = rotateQautr(normal, up, angle);
+//        up = rotateQautr(normal, up, angle).normalize();
         direction = rotateQautr(normal, direction, angle);
     }
 
@@ -41,6 +41,7 @@ public:
         // поворот относительно вектора up
         direction = rotateQautr(up, direction, angle);
     }
+
 
 private:
 
