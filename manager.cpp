@@ -38,6 +38,7 @@ void SceneManager::render_all(){
             pixel_shader = std::make_shared<ColorShader>();
         rasterize(model);
     }
+
     show();
 }
 
@@ -242,6 +243,7 @@ void SceneManager::uploadModel(std::string name, uint32_t& uid){
         {"Сфера", "C:\\raster\\ui_mode\\sphere.obj"},
         {"Пирамида", "C:\\raster\\ui_mode\\pyramyd.obj"},
         {"Конус", "C:\\raster\\ui_mode\\conus.obj"},
+        {"Плоскость", "C:\\raster\\ui_mode\\plane.obj"}
     };
 
     if (!files.count(name))

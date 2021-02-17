@@ -33,7 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
         "Сфера",
         "Пирамида",
         "Цилиндр",
-        "Конус"
+        "Конус",
+        "Плоскость"
     };
 
     ui->objects_list->addItems(textures);
@@ -200,7 +201,8 @@ void MainWindow::fetch(QModelIndex index){
 
 void MainWindow::on_render_button_clicked()
 {
-    manager.init();
+//    manager.init();
+    manager.trace();
 }
 
 void MainWindow::on_rotate_x_spin_valueChanged(double arg1)

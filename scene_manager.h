@@ -6,11 +6,18 @@
 #include <QGraphicsScene>
 #include "model.h"
 #include "camera.h"
+#include "light.h"
 #include "color_shader.h"
 #include "vertex_shader.h"
 #include <QtDebug>
 
 enum trans_type{shift_x, shift_y, shift_z, rot_x, rot_y, rot_z, scale_x, scale_y, scale_z};
+
+struct InterSectionData{
+    Model model;
+    float t;
+    Vec3f normal;
+};
 
 class SceneManager{
 
@@ -56,6 +63,8 @@ public:
 
     void setTexture(const QImage& img);
 
+    void trace();
+
 private:
     void render_all();
 
@@ -70,6 +79,15 @@ private:
     bool backfaceCulling(const Vertex& a, const Vertex& b, const Vertex& c);
 
     bool clip(const Vertex& p);
+
+    Vec3f traceRay(const Vec3f& o, const Vec3f& d, float t_min, float t_max, int depth);
+
+    InterSectionData closestIntersection(const Vec3f& o, const Vec3f& d, float t_min, float t_max);
+
+    Vec3f canvasToViewPort(int x, int y);
+
+    Vec3f computeLightning(const Vec3f& p, const Vec3f& n, const Vec3f& direction, float specular);
+
 
 
 private:
@@ -86,5 +104,7 @@ private:
     std::shared_ptr<GeometryShaderInterface> geom_shader;
     uint32_t models_index = 1;
     int current_model = 0;
+    float vw = 1.f, vh = 1.f;
+    float d = 1.f;
 };
 #endif // SCENE_MANAGER_H
