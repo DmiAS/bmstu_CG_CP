@@ -110,8 +110,8 @@ public:
     Mat4x4f scale_matrix;
     QImage texture;
     bool has_texture = false;
-    float specular = 0.f;
-    float reflective = 0.f;
+    float specular = 0.5f;
+    float reflective = 0.8f;
     float transparency = 0.f;
     Vec3f color;
 

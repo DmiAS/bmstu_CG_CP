@@ -75,9 +75,9 @@ public:
         return *this;
     }
 
-    T operator*(const Vec3& vec){
-        return x * vec.x + y * vec.y + z * vec.z;
-    }
+//    T operator*(const Vec3& vec){
+//        return x * vec.x + y * vec.y + z * vec.z;
+//    }
 
     bool operator==(const Vec3& vec) const{
         return this->x == vec.x && this->y == vec.y && this->z == vec.z;

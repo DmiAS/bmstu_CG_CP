@@ -93,7 +93,7 @@ private:
 private:
     std::vector<Camera> camers;
     int curr_camera = 0;
-    std::vector<Model> models;
+    std::vector<Model*> models;
     int width, height;
     std::vector<std::vector<float>> depthBuffer;
     QImage img;

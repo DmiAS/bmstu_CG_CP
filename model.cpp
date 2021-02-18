@@ -28,10 +28,13 @@ Model::Model(const std::string& fileName, uint32_t uid_){
     texture.load("C:\\raster\\ui_mode\\bricks.jpg");
 }
 
-Vertex transform_position(const Vertex& v, const Mat4x4f& objToWorld){
+Vertex transform_position(const Vertex& v, const Mat4x4f& objToWorld, const Mat4x4f& rotationMatrix){
     Vec4f res(v.pos);
     res = res * objToWorld;
     Vertex out = v;
+    Vec4f normal(out.normal);
+    normal = normal * rotationMatrix;
+    out.normal = {normal.x, normal.y, normal.z};
     out.pos = Vec3f(res.x, res.y, res.z);
     return out;
 }
@@ -44,10 +47,11 @@ std::pair<data_intersect, data_intersect> Model::interSect(const Vec3f& origin, 
     Vec3f n1, n2;
 
     auto objToWorld = this->objToWorld();
+    auto rotMatrix = this->rotation_matrix;
     for (int i = 0; i < index_buffer.size() / 3; i++){
-        auto p0 = transform_position(vertex_buffer[index_buffer[3 * i]], objToWorld);
-        auto p1 = transform_position(vertex_buffer[index_buffer[3 * i + 1]], objToWorld);
-        auto p2 = transform_position(vertex_buffer[index_buffer[3 * i + 2]], objToWorld);
+        auto p0 = transform_position(vertex_buffer[index_buffer[3 * i]], objToWorld, rotMatrix);
+        auto p1 = transform_position(vertex_buffer[index_buffer[3 * i + 1]], objToWorld, rotMatrix);
+        auto p2 = transform_position(vertex_buffer[index_buffer[3 * i + 2]], objToWorld, rotMatrix);
 
         auto edge1 = p1.pos - p0.pos;
         auto edge2 = p2.pos - p0.pos;

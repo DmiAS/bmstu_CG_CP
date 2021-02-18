@@ -222,7 +222,7 @@ void MainWindow::on_rotate_y_spin_valueChanged(double arg1)
 //    if (arg1 < prev_value)
 //        step *= -1;
 //    prev_value = arg1;
-    manager.rotate(rot_y, arg1);
+    manager.rotate(rot_y, -arg1);
 }
 
 void MainWindow::on_rotate_z_spin_valueChanged(double arg1)

@@ -11,20 +11,20 @@ InterSectionData SceneManager::closestIntersection(const Vec3f& o, const Vec3f& 
     Vec3f normal;
 
     for (auto& model: models){
-        auto p = model.interSect(o, d);
+        auto p = model->interSect(o, d);
         if (checkIntersection(p.first.first, t_min, t_max, closest_t)){
             closest_t = p.first.first;
-            closest_model = model;
+            closest_model = *model;
             normal = p.first.second;
         }
         if (checkIntersection(p.second.first, t_min, t_max, closest_t)) {
             closest_t = p.second.first;
-            closest_model = model;
+            closest_model = *model;
             normal = p.second.second;
         }
     }
 
-    return {closest_model, closest_t, normal};
+    return {closest_model, closest_t, normal.normalize()};
 }
 
 Vec3f SceneManager::computeLightning(const Vec3f &p, const Vec3f &n, const Vec3f &direction, float specular){
@@ -33,20 +33,20 @@ Vec3f SceneManager::computeLightning(const Vec3f &p, const Vec3f &n, const Vec3f
 
 
     for (auto &model: models){
-        if (model.isObject()) continue;
-        Light& light = dynamic_cast<Light&>(model);
-        if (light.t == Light::light_type::ambient)
-            i += light.color_intensity;
+        if (model->isObject()) continue;
+        Light* light = dynamic_cast<Light*>(model);
+        if (light->t == Light::light_type::ambient)
+            i += light->color_intensity;
         else{
             float t_max;
-            if (light.t == Light::light_type::point){
-                L = {light.position.x - p.x,
-                     light.position.y - p.y,
-                     light.position.z - p.z,
+            if (light->t == Light::light_type::point){
+                L = {light->position.x - p.x,
+                     light->position.y - p.y,
+                     light->position.z - p.z,
                     };
                 t_max = 1;
             } else{
-                L = light.direction;
+                L = light->direction;
                 t_max = std::numeric_limits<float>::max();
             }
 
@@ -58,15 +58,33 @@ Vec3f SceneManager::computeLightning(const Vec3f &p, const Vec3f &n, const Vec3f
             float n_dot_l = Vec3f::dot(n, L);
             if (n_dot_l > 0){
                 auto denum = (n.len() * L.len());
-                i.x = light.color_intensity.x * n_dot_l / denum;
-                i.y = light.color_intensity.y * n_dot_l / denum;
-                i.z = light.color_intensity.z * n_dot_l / denum;
+                auto factor = n_dot_l / denum;
+                i.x = light->color_intensity.x * factor;
+                i.y = light->color_intensity.y * factor;
+                i.z = light->color_intensity.z * factor;
+            }
+
+            //mirroing
+            if (!(fabs(specular + 1)< eps_float)){
+                auto r = (n * 2 * Vec3f::dot(n, L)) - L;
+                float r_dot_v = Vec3f::dot(r, direction);
+                if (r_dot_v > 0){
+                    auto len = r.len() * direction.len();
+                    auto factor = pow(r_dot_v / len, specular);
+                    i.x = light->color_intensity.x * factor;
+                    i.y = light->color_intensity.y * factor;
+                    i.z = light->color_intensity.z * factor;
+                }
             }
         }
 
     }
 
-    return i.saturate();
+    return i;
+}
+
+Vec3f reflectRay(const Vec3f& r, const Vec3f& n){
+    return (n * 2 * Vec3f::dot(n, r)) - r;
 }
 
 Vec3f SceneManager::traceRay(const Vec3f& o, const Vec3f& d, float t_min, float t_max, int depth){
@@ -82,7 +100,19 @@ Vec3f SceneManager::traceRay(const Vec3f& o, const Vec3f& d, float t_min, float 
 
     auto local_color = res.model.color.hadamard(computed_light);
 
-    return local_color * 255.f;
+    float r = res.model.reflective;
+    if (depth <= 0 || r <= 0){
+        return local_color;
+    }
+
+    if (r >= 0){
+        auto R = reflectRay(-d, res.normal);
+        auto reflected_color = traceRay(p, R, 1e-3, std::numeric_limits<float>::max(),
+                                        depth - 1);
+        local_color = local_color * (1 - r) + reflected_color * r;
+    }
+
+    return local_color;
 
 //    Vec3f p = o + d * res.second;
 
@@ -106,7 +136,7 @@ void SceneManager::trace(){
 //            auto d = canvasToViewPort(x, y);
 //            qDebug() << height / 2 << d.x << d.y << d.z;
 //            return;
-            auto color = traceRay(origin, d, 1, std::numeric_limits<float>::max(), 1);
+            auto color = traceRay(origin, d, 1, std::numeric_limits<float>::max(), 1) * 255.f;
             img.setPixelColor(x, y, QColor(color.x, color.y, color.z));
         }
     }

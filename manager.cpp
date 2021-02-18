@@ -16,6 +16,8 @@ void denormolize(int width, int height, Vertex& v){
 
 
 void SceneManager::init(){
+    models.push_back(new Light);
+    models.push_back(new Light(Light::light_type::point, {0, 0, 1}, {.7f, .7f, .7f}, {5, 0, 0}, 0.4f));
 //    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
     pixel_shader = std::make_shared<ColorShader>();
     vertex_shader = std::make_shared<VertexShader>();
@@ -32,11 +34,12 @@ void SceneManager::render_all(){
         std::fill(vec.begin(), vec.end(), std::numeric_limits<float>::max());
 
     for (auto& model: models){
-        if (model.has_texture)
-            pixel_shader = std::make_shared<TextureShader>(model.texture);
+        if (!model->isObject()) continue;
+        if (model->has_texture)
+            pixel_shader = std::make_shared<TextureShader>(model->texture);
         else
             pixel_shader = std::make_shared<ColorShader>();
-        rasterize(model);
+        rasterize(*model);
     }
 
     show();
@@ -161,13 +164,13 @@ void SceneManager::show(){
 void SceneManager::shift(trans_type t, float val){
     switch (t) {
     case shift_x:
-        models[current_model].shiftX(val);
+        models[current_model]->shiftX(val);
         break;
     case shift_y:
-        models[current_model].shiftY(val);
+        models[current_model]->shiftY(val);
         break;
     case shift_z:
-        models[current_model].shiftZ(val);
+        models[current_model]->shiftZ(val);
     }
 
     render_all();
@@ -176,13 +179,13 @@ void SceneManager::shift(trans_type t, float val){
 void SceneManager::rotate(trans_type t, float angle){
     switch (t) {
     case rot_x:
-        models[current_model].rotateX(angle);
+        models[current_model]->rotateX(angle);
         break;
     case rot_y:
-        models[current_model].rotateY(angle);
+        models[current_model]->rotateY(angle);
         break;
     case rot_z:
-        models[current_model].rotateZ(angle);
+        models[current_model]->rotateZ(angle);
     }
 
     render_all();
@@ -191,13 +194,13 @@ void SceneManager::rotate(trans_type t, float angle){
 void SceneManager::scale(trans_type t, float factor){
     switch (t) {
     case scale_x:
-        models[current_model].scaleX(factor);
+        models[current_model]->scaleX(factor);
         break;
     case scale_y:
-        models[current_model].scaleY(factor);
+        models[current_model]->scaleY(factor);
         break;
     case scale_z:
-        models[current_model].scaleZ(factor);
+        models[current_model]->scaleZ(factor);
     }
 
     render_all();
@@ -250,7 +253,7 @@ void SceneManager::uploadModel(std::string name, uint32_t& uid){
         return;
 
     uid = models_index++;
-    models.push_back(Model(files.at(name), uid));
+    models.push_back(new Model(files.at(name), uid));
 
     render_all();
 }
@@ -265,25 +268,25 @@ void SceneManager::setCurrentModel(uint32_t uid){
     auto it = models.begin();
     int i = 0;
     for (; it <  models.end(); it++, i++)
-        if (it->getUid() == uid)
+        if ((*it)->getUid() == uid)
             break;
     current_model = i;
 }
 
 void SceneManager::setColor(const Vec3f &color){
-    models[current_model].setColor(color);
+    models[current_model]->setColor(color);
     render_all();
 }
 
 void SceneManager::setTexture(const QImage &img){
-    models[current_model].has_texture = true;
-    models[current_model].setColor(Vec3f{1.f, 1.f, 1.f});
-    models[current_model].texture = img;
+    models[current_model]->has_texture = true;
+    models[current_model]->setColor(Vec3f{1.f, 1.f, 1.f});
+    models[current_model]->texture = img;
     render_all();
 }
 
 void SceneManager::setFlagTexture(bool flag, const Vec3f& color){
-    models[current_model].has_texture = flag;
-    models[current_model].setColor(color);
+    models[current_model]->has_texture = flag;
+    models[current_model]->setColor(color);
     render_all();
 }
