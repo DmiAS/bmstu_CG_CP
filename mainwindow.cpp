@@ -1,6 +1,10 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+UI_data::UI_data(){
+    img.load("C:\\raster\\ui_mode\\bricks.jpg");
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -29,7 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
         "Сфера",
         "Пирамида",
         "Цилиндр",
-        "Конус"
+        "Конус",
+        "Плоскость"
     };
 
     ui->objects_list->addItems(textures);
@@ -43,6 +48,11 @@ MainWindow::MainWindow(QWidget *parent)
 //    ui->scene_list->setSelectionMode(QAbstractItemView::Selec);
 
     connect(ui->scene_list, SIGNAL(clicked(QModelIndex)), this, SLOT(fetch(QModelIndex)));
+
+    ui->color_preview->setScene(new QGraphicsScene);
+    ui->texture_img->setScene(new QGraphicsScene(0, 0, ui->texture_img->width(), ui->texture_img->height()));
+    ui->texture_img->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->texture_img->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     hideButtons();
 
@@ -87,6 +97,18 @@ void MainWindow::fill_data(const UI_data& data){
     ui->scale_y_spin->setValue(data.scale_y);
     ui->scale_z_spin->setValue(data.scale_z);
 
+    ui->color_flag->setChecked(data.color_flag);
+    ui->texture_flag->setChecked(data.texture_flag);
+
+    ui->texture_img->scene()->addPixmap(QPixmap::fromImage(data.img));
+
+    ui->color_preview->scene()->setBackgroundBrush(
+                QColor(data.color.x *255.f, data.color.y * 255.f, data.color.z * 255.f));
+
+    // block and lock buttons for adding color and texture
+    ui->color_add_button->setDisabled(data.texture_flag);
+    ui->add_texture_button->setDisabled(data.color_flag);
+
     lockSignals(false);
 
 }
@@ -104,6 +126,13 @@ void MainWindow::save_data(UI_data& data){
     data.scale_x = ui->scale_x_spin->value();
     data.scale_y = ui->scale_y_spin->value();
     data.scale_z = ui->scale_z_spin->value();
+
+    data.texture_flag = ui->texture_flag->isChecked();
+    data.color_flag = ui->color_flag->isChecked();
+
+    auto color = ui->color_preview->scene()->backgroundBrush().color();
+
+    data.color = Vec3f(color.redF(), color.greenF(), color.blueF());
 
 }
 
@@ -134,6 +163,7 @@ void MainWindow::changeHidence(bool flag){
 
     ui->color_flag->setHidden(flag);
     ui->color_add_button->setHidden(flag);
+    ui->color_preview->setHidden(flag);
 
     ui->reflection_spin->setHidden(flag);
     ui->refraction_spin->setHidden(flag);
@@ -163,14 +193,16 @@ void MainWindow::fetch(QModelIndex index){
     else
         save_data(name_data.at(prev_selected));
     manager.setCurrentModel(text_uid.at(text));
-    fill_data(name_data.at(text));
+    if (name_data.count(text))
+        fill_data(name_data.at(text));
     prev_selected = text;
 }
 
 
 void MainWindow::on_render_button_clicked()
 {
-    manager.init();
+//    manager.init();
+    manager.trace();
 }
 
 void MainWindow::on_rotate_x_spin_valueChanged(double arg1)
@@ -190,7 +222,7 @@ void MainWindow::on_rotate_y_spin_valueChanged(double arg1)
 //    if (arg1 < prev_value)
 //        step *= -1;
 //    prev_value = arg1;
-    manager.rotate(rot_y, arg1);
+    manager.rotate(rot_y, -arg1);
 }
 
 void MainWindow::on_rotate_z_spin_valueChanged(double arg1)
@@ -311,6 +343,7 @@ void MainWindow::on_add_object_button_clicked()
     else{
         auto val = ++name_data.at(text).amount;
         updated_text += QString("%1").arg(val);
+        name_data.insert({updated_text, UI_data{}});
     }
     uint32_t uid = 0;
     manager.uploadModel(text.toStdString(), uid);
@@ -333,4 +366,47 @@ void MainWindow::on_delete_object_button_clicked()
     prev_selected = "";
     hideButtons();
     manager.removeModel();
+}
+
+void MainWindow::on_color_add_button_clicked()
+{
+    QColor color = QColorDialog::getColor(Qt::gray, this, QStringLiteral("Выберите цвет модели"));
+    qDebug() << "picked";
+    if (!color.isValid()) return;
+    auto cred = QString::number(color.red()).toFloat();
+    auto cgreen = QString::number(color.green()).toFloat();
+    auto cblue = QString::number(color.blue()).toFloat();
+
+//    ui->color_preview->scene()->setBackgroundBrush(QBrush(QColor(cred, cgreen, cblue)));
+    ui->color_preview->scene()->setBackgroundBrush(QColor(cred, cgreen, cblue));
+
+    auto color_f = Vec3f(cred / 255.f, cgreen / 255.f, cblue / 255.f);
+    manager.setColor(color_f);
+    name_data.at(prev_selected).color = color_f;
+
+}
+
+void MainWindow::on_texture_flag_clicked()
+{
+    ui->add_texture_button->setDisabled(false);
+    auto img = name_data.at(prev_selected).img;
+    ui->texture_img->scene()->addPixmap(QPixmap::fromImage(img));
+    ui->color_add_button->setDisabled(true);
+    manager.setFlagTexture(true, Vec3f{1.f, 1.f, 1.f});
+}
+
+void MainWindow::on_color_flag_clicked()
+{
+    ui->color_add_button->setDisabled(false);
+    ui->add_texture_button->setDisabled(true);
+    manager.setFlagTexture(false, name_data.at(prev_selected).color);
+}
+
+void MainWindow::on_add_texture_button_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Выберите текстуру" );
+    QImage img;
+    img.load(fileName);
+    name_data.at(prev_selected).img = img;
+    manager.setTexture(img);
 }

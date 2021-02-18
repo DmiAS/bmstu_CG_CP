@@ -23,6 +23,7 @@ SOURCES += \
     manager.cpp \
     model.cpp \
     pixel_shader.cpp \
+    raytraycing.cpp \
     texture.cpp \
     vertex_shader.cpp
 
@@ -32,6 +33,7 @@ HEADERS += \
     camera.h \
     color_shader.h \
     geometry_shader.h \
+    light.h \
     mainwindow.h \
     mat.h \
     model.h \

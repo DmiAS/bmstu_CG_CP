@@ -2,7 +2,7 @@
 #define GEOMETRY_SHADER_H
 #include "shaders.h"
 
-const float eps =  1e-7f;
+const float eps =  1e-5f;
 class GeometryShader: public GeometryShaderInterface{
 public:
     Vertex shade(const Vertex &a,

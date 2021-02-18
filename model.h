@@ -8,11 +8,15 @@
 #include "vertex.h"
 #include "mat.h"
 #include "shaders.h"
+#include <QImage>
 
+using data_intersect = std::pair<float, Vec3f>;
 const float max_angle = 360, rot_step_x = 15, rot_step_y = 15, rot_step_z = 15;
 class Model{
 
 public:
+
+    Model() = default;
 
     Model(const std::string& fileName, uint32_t uid_);
 
@@ -78,11 +82,18 @@ public:
     void setColor(const Vec3f& color){
         for (auto& v: vertex_buffer)
             v.color = color;
+        this->color = color;
     }
+
 
     uint32_t getUid() const{
         return uid;
     }
+
+    virtual bool isObject() {return true;}
+
+    std::pair<data_intersect, data_intersect> interSect(const Vec3f& o, const Vec3f& d);
+
 
 private:
     float wrap_angle(float curr_angle, float next_angle, float step){
@@ -97,6 +108,12 @@ public:
     std::vector<Vertex> vertex_buffer;
     Mat4x4f rotation_matrix = Mat4x4f::Identity();
     Mat4x4f scale_matrix;
+    QImage texture;
+    bool has_texture = false;
+    float specular = 0.5f;
+    float reflective = 0.8f;
+    float transparency = 0.f;
+    Vec3f color;
 
 private:
     float angle_x = 0.f, angle_y = 0.f, angle_z = 0.f;

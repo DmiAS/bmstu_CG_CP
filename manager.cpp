@@ -16,8 +16,10 @@ void denormolize(int width, int height, Vertex& v){
 
 
 void SceneManager::init(){
-    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
-//    pixel_shader = std::make_shared<ColorShader>();
+    models.push_back(new Light);
+    models.push_back(new Light(Light::light_type::point, {0, 0, 1}, {.7f, .7f, .7f}, {5, 0, 0}, 0.4f));
+//    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
+    pixel_shader = std::make_shared<ColorShader>();
     vertex_shader = std::make_shared<VertexShader>();
     geom_shader = std::make_shared<GeometryShader>();
     render_all();
@@ -31,22 +33,28 @@ void SceneManager::render_all(){
     for (auto& vec: depthBuffer)
         std::fill(vec.begin(), vec.end(), std::numeric_limits<float>::max());
 
-    for (auto& model: models)
-        rasterize(model);
+    for (auto& model: models){
+        if (!model->isObject()) continue;
+        if (model->has_texture)
+            pixel_shader = std::make_shared<TextureShader>(model->texture);
+        else
+            pixel_shader = std::make_shared<ColorShader>();
+        rasterize(*model);
+    }
+
     show();
 }
 
 bool SceneManager::backfaceCulling(const Vertex &a, const Vertex &b, const Vertex &c){
     auto cam = camers[curr_camera];
 
-//    auto face_normal = Vec3f::cross(b.pos - a.pos, c.pos - b.pos);
+    auto face_normal = Vec3f::cross(b.pos - a.pos, c.pos - b.pos);
 //    if (Vec3f::dot(face_normal, a.normal) < 0)
 //        face_normal *= -1.f;
 
-    auto res1 = Vec3f::dot(a.normal, cam.direction);
-    auto res2 = Vec3f::dot(b.normal, cam.direction);
-    auto res3 = Vec3f::dot(c.normal, cam.direction);
-//    qDebug() << cam.position.x << cam.position.y << cam.position.z;
+    auto res1 = Vec3f::dot(face_normal, a.pos - cam.position);
+    auto res2 = Vec3f::dot(face_normal, b.pos - cam.position);
+    auto res3 = Vec3f::dot(face_normal, c.pos - cam.position);
 
     if ((res1 > 0 || fabs(res1) < eps) && (res2 > 0 || fabs(res2) < eps) && (res3 > 0 || fabs(res3) < eps))
         return true;
@@ -86,14 +94,21 @@ void SceneManager::rasterize(Model& model){
     }
 }
 
+bool winding_order(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3){
+//    Vec3f edge0, edge1;
+    return 0 > (p2.x - p1.x) * (p2.y - p1.y) + (p3.x - p2.x) * (p3.y - p2.y);
+}
+
 #define Min(val1, val2) std::min(val1, val2)
 #define Max(val1, val2) std::max(val1, val2)
 void SceneManager::rasterBarTriangle(Vertex p1_, Vertex p2_, Vertex p3_){
 
-
     if (!clip(p1_) && !clip(p2_) && !clip(p3_)){
         return;
     }
+
+//    // winding order test
+//    if (winding_order(p1_.pos, p2_.pos, p3_.pos)) return;
 
     denormolize(width, height, p1_);
     denormolize(width, height, p2_);
@@ -119,7 +134,7 @@ void SceneManager::rasterBarTriangle(Vertex p1_, Vertex p2_, Vertex p3_){
                 interpolated.x = x;
                 interpolated.y = y;
                 if (testAndSet(interpolated)){
-                    auto pixel_color = pixel_shader->shade(p1_, p2_, p3_, bary);
+                    auto pixel_color = pixel_shader->shade(p1_, p2_, p3_, bary) * 255.f;
 //                    qDebug() << pixel_color.x, pixel_color.y, pixel_color.z;
                     img.setPixelColor(x, y, qRgb(pixel_color.x, pixel_color.y, pixel_color.z));
                 }
@@ -141,19 +156,21 @@ bool SceneManager::testAndSet(const Vec3f& p){
 }
 
 void SceneManager::show(){
+//    scene->pix
+    scene->clear();
     scene->addPixmap(QPixmap::fromImage(img));
 }
 
 void SceneManager::shift(trans_type t, float val){
     switch (t) {
     case shift_x:
-        models[current_model].shiftX(val);
+        models[current_model]->shiftX(val);
         break;
     case shift_y:
-        models[current_model].shiftY(val);
+        models[current_model]->shiftY(val);
         break;
     case shift_z:
-        models[current_model].shiftZ(val);
+        models[current_model]->shiftZ(val);
     }
 
     render_all();
@@ -162,13 +179,13 @@ void SceneManager::shift(trans_type t, float val){
 void SceneManager::rotate(trans_type t, float angle){
     switch (t) {
     case rot_x:
-        models[current_model].rotateX(angle);
+        models[current_model]->rotateX(angle);
         break;
     case rot_y:
-        models[current_model].rotateY(angle);
+        models[current_model]->rotateY(angle);
         break;
     case rot_z:
-        models[current_model].rotateZ(angle);
+        models[current_model]->rotateZ(angle);
     }
 
     render_all();
@@ -177,13 +194,13 @@ void SceneManager::rotate(trans_type t, float angle){
 void SceneManager::scale(trans_type t, float factor){
     switch (t) {
     case scale_x:
-        models[current_model].scaleX(factor);
+        models[current_model]->scaleX(factor);
         break;
     case scale_y:
-        models[current_model].scaleY(factor);
+        models[current_model]->scaleY(factor);
         break;
     case scale_z:
-        models[current_model].scaleZ(factor);
+        models[current_model]->scaleZ(factor);
     }
 
     render_all();
@@ -229,13 +246,14 @@ void SceneManager::uploadModel(std::string name, uint32_t& uid){
         {"Сфера", "C:\\raster\\ui_mode\\sphere.obj"},
         {"Пирамида", "C:\\raster\\ui_mode\\pyramyd.obj"},
         {"Конус", "C:\\raster\\ui_mode\\conus.obj"},
+        {"Плоскость", "C:\\raster\\ui_mode\\plane.obj"}
     };
 
     if (!files.count(name))
         return;
 
     uid = models_index++;
-    models.push_back(Model(files.at(name), uid));
+    models.push_back(new Model(files.at(name), uid));
 
     render_all();
 }
@@ -250,7 +268,25 @@ void SceneManager::setCurrentModel(uint32_t uid){
     auto it = models.begin();
     int i = 0;
     for (; it <  models.end(); it++, i++)
-        if (it->getUid() == uid)
+        if ((*it)->getUid() == uid)
             break;
     current_model = i;
+}
+
+void SceneManager::setColor(const Vec3f &color){
+    models[current_model]->setColor(color);
+    render_all();
+}
+
+void SceneManager::setTexture(const QImage &img){
+    models[current_model]->has_texture = true;
+    models[current_model]->setColor(Vec3f{1.f, 1.f, 1.f});
+    models[current_model]->texture = img;
+    render_all();
+}
+
+void SceneManager::setFlagTexture(bool flag, const Vec3f& color){
+    models[current_model]->has_texture = flag;
+    models[current_model]->setColor(color);
+    render_all();
 }

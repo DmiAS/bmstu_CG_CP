@@ -11,7 +11,7 @@ Vertex VertexShader::shade(const Vertex &a, const Mat4x4f& rotMatrix, const Mat4
     auto normal = Vec4f(a.normal) * rotMatrix;
     output.normal = Vec3f(normal.x, normal.y, normal.z);
 
-    auto diffuse = light_color * std::max(0.f, output.normal.normalize() * -(a.pos - cam.position).normalize()) * intensity;
+    auto diffuse = light_color * std::max(0.f, Vec3f::dot(output.normal.normalize(), -(a.pos - cam.position).normalize())) * intensity;
     auto c = (diffuse + ambient).saturate();
     output.color = output.color.hadamard(c);
     return output;

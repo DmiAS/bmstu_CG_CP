@@ -3,18 +3,22 @@
 #include <QMainWindow>
 #include <QKeyEvent>
 #include <QStringListModel>
+#include <QColorDialog>
+#include <QFileDialog>
 #include "scene_manager.h"
 
 struct UI_data{
+    UI_data();
     uint32_t amount = 0;
 
     float shift_x = 0, shift_y = 0, shift_z = 0;
     float rot_x = 0, rot_y = 0, rot_z = 0;
     float scale_x = 0, scale_y = 0, scale_z = 0;
 
-    bool texture = false, color = true;
+    bool texture_flag = false, color_flag = true;
 
-
+    Vec3f color = {0.5, 0.5, 0.5};
+    QImage img;
 };
 
 QT_BEGIN_NAMESPACE
@@ -66,6 +70,14 @@ private slots:
     void hideButtons();
     void changeHidence(bool);
     void lockSignals(bool signal);
+
+    void on_color_add_button_clicked();
+
+    void on_texture_flag_clicked();
+
+    void on_color_flag_clicked();
+
+    void on_add_texture_button_clicked();
 
 private:
     Ui::MainWindow *ui;
