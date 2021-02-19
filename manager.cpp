@@ -16,8 +16,8 @@ void denormolize(int width, int height, Vertex& v){
 
 
 void SceneManager::init(){
-    models.push_back(new Light);
-    models.push_back(new Light(Light::light_type::point, {0, 0, 1}, {.7f, .7f, .7f}, {5, 0, 0}, 0.4f));
+    models.push_back(new Light(Light::light_type::ambient, {0.f, 0.f, 0.f}, {0.4, 0.3, 0.4}));
+    models.push_back(new Light(Light::light_type::point, {0, 0, 1}, {.7f, .7f, .7f}, {0, 0, -5}, 0.4f));
 //    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
     pixel_shader = std::make_shared<ColorShader>();
     vertex_shader = std::make_shared<VertexShader>();

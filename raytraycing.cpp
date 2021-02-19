@@ -64,18 +64,18 @@ Vec3f SceneManager::computeLightning(const Vec3f &p, const Vec3f &n, const Vec3f
                 i.z = light->color_intensity.z * factor;
             }
 
-            //mirroing
-            if (!(fabs(specular + 1)< eps_float)){
-                auto r = (n * 2 * Vec3f::dot(n, L)) - L;
-                float r_dot_v = Vec3f::dot(r, direction);
-                if (r_dot_v > 0){
-                    auto len = r.len() * direction.len();
-                    auto factor = pow(r_dot_v / len, specular);
-                    i.x = light->color_intensity.x * factor;
-                    i.y = light->color_intensity.y * factor;
-                    i.z = light->color_intensity.z * factor;
-                }
-            }
+//            //mirroing
+//            if (!(fabs(specular + 1)< eps_float)){
+//                auto r = (n * 2 * Vec3f::dot(n, L)) - L;
+//                float r_dot_v = Vec3f::dot(r, direction);
+//                if (r_dot_v > 0){
+//                    auto len = r.len() * direction.len();
+//                    auto factor = pow(r_dot_v / len, specular);
+//                    i.x = light->color_intensity.x * factor;
+//                    i.y = light->color_intensity.y * factor;
+//                    i.z = light->color_intensity.z * factor;
+//                }
+//            }
         }
 
     }
@@ -100,17 +100,17 @@ Vec3f SceneManager::traceRay(const Vec3f& o, const Vec3f& d, float t_min, float 
 
     auto local_color = res.model.color.hadamard(computed_light);
 
-    float r = res.model.reflective;
-    if (depth <= 0 || r <= 0){
-        return local_color;
-    }
+//    float r = res.model.reflective;
+//    if (depth <= 0 || r <= 0){
+//        return local_color;
+//    }
 
-    if (r >= 0){
-        auto R = reflectRay(-d, res.normal);
-        auto reflected_color = traceRay(p, R, 1e-3, std::numeric_limits<float>::max(),
-                                        depth - 1);
-        local_color = local_color * (1 - r) + reflected_color * r;
-    }
+//    if (r >= 0){
+//        auto R = reflectRay(-d, res.normal);
+//        auto reflected_color = traceRay(p, R, 1e-3, std::numeric_limits<float>::max(),
+//                                        depth - 1);
+//        local_color = local_color * (1 - r) + reflected_color * r;
+//    }
 
     return local_color;
 

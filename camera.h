@@ -34,16 +34,19 @@ public:
 
 
     void rotateX(float angle){
-        if (fabs(fabs(x_rot_angle + angle) - 90.f) < eps_cam)
-            return;
+//        if (fabs(fabs(x_rot_angle + angle) - 90.f) < eps_cam)
+//            return;
         auto normal = Vec3f::cross(direction, up);
         direction = rotateQautr(normal, direction, angle);
+        up = rotateQautr(normal, up, angle);
         x_rot_angle += angle;
     }
 
     void rotateY(float angle){
         // поворот относительно вектора up
-        direction = rotateQautr(up, direction, angle);
+        Vec3f axis{0, 1, 0};
+        direction = rotateQautr(axis, direction, angle);
+        up = rotateQautr(axis, up, angle);
     }
 
 
