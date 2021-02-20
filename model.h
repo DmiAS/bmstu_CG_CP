@@ -8,6 +8,7 @@
 #include "vertex.h"
 #include "mat.h"
 #include "shaders.h"
+#include "primitive.h"
 #include <QImage>
 
 using data_intersect = std::pair<float, Vec3f>;
@@ -94,6 +95,8 @@ public:
 
     std::pair<data_intersect, data_intersect> interSect(const Vec3f& o, const Vec3f& d);
 
+    NonhierSphere getBoundingBall() const;
+
 
 private:
     float wrap_angle(float curr_angle, float next_angle, float step){
@@ -114,6 +117,7 @@ public:
     float reflective = 0.8f;
     float transparency = 0.f;
     Vec3f color;
+    NonhierSphere m_boundingBall;
 
 private:
     float angle_x = 0.f, angle_y = 0.f, angle_z = 0.f;

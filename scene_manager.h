@@ -13,12 +13,6 @@
 
 enum trans_type{shift_x, shift_y, shift_z, rot_x, rot_y, rot_z, scale_x, scale_y, scale_z};
 
-struct InterSectionData{
-    Model model;
-    float t;
-    Vec3f normal;
-};
-
 class SceneManager{
 
 public:
@@ -79,14 +73,6 @@ private:
     bool backfaceCulling(const Vertex& a, const Vertex& b, const Vertex& c);
 
     bool clip(const Vertex& p);
-
-    Vec3f traceRay(const Vec3f& o, const Vec3f& d, float t_min, float t_max, int depth);
-
-    InterSectionData closestIntersection(const Vec3f& o, const Vec3f& d, float t_min, float t_max);
-
-    Vec3f canvasToViewPort(int x, int y);
-
-    Vec3f computeLightning(const Vec3f& p, const Vec3f& n, const Vec3f& direction, float specular);
 
 
 

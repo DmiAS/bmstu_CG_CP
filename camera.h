@@ -75,7 +75,7 @@ public:
     Vec3f position;
     Vec3f up;
     Vec3f direction;
-    float fov = 90;
+    float fov = 45;
     float zn;
     float zf;
     float aspect_ratio;
