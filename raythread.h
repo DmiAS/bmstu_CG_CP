@@ -13,14 +13,15 @@ class RayThread: public QThread
 {
     Q_OBJECT
 public:
-    RayThread(QImage& img_, std::vector<Model*>& models_,
-              Mat4x4f& inverse_, RayBound& bound_, int width_, int height_, Vec3f& origin_): img{img_},
-        models{models_}, inverse{inverse_}, bound{bound_}, width{width_}, height{height_},
-        origin{origin_}{}
+    RayThread(Camera* cam_, QImage& img_, std::vector<Model*>& models_,
+              Mat4x4f& inverse_, RayBound& bound_, int width_, int height_):
+        cam{cam_}, img{img_}, models{models_}, inverse{inverse_},
+        bound{bound_}, width{width_}, height{height_}{}
 protected:
     void run() override;
 private:
     Vec3f toWorld(int x, int y);
+    Vec3f toWorld(const Vec3f& u, const Vec3f& v, const Vec3f& w, int x, int y);
     Vec3f traceRay(const Vec3f& o, const Vec3f& d, float t_min, float t_max, int depth);
     Vec3f cast_ray(const Ray& ray, int depth = 10);
 
@@ -35,7 +36,7 @@ private:
     Mat4x4f inverse;
     RayBound bound;
     int width, height;
-    Vec3f origin;
+    Camera* cam;
 };
 
 #endif // RAYTHREAD_H

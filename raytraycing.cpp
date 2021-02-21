@@ -215,13 +215,13 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
 //    }
 
     auto local_color = data.color.hadamard(computeLightning(data.point, data.normal, -ray.direction, data.model.specular)).saturate();
-    float r = data.model.reflective;
-    if (depth <= 0 || r < 0 || fabs(r) < std::numeric_limits<float>::epsilon()) return local_color;
-    if (r > 0) {
-        Vec3f R = reflect(ray.direction * -1.f, data.normal).normalize();
-        auto reflected_color = cast_ray(Ray(data.point, R), depth - 1);
-        return ((local_color * (1 - r)) + (reflected_color * r)).saturate();
-    }
+//    float r = data.model.reflective;
+//    if (depth <= 0 || r < 0 || fabs(r) < std::numeric_limits<float>::epsilon()) return local_color;
+//    if (r > 0) {
+//        Vec3f R = reflect(ray.direction * -1.f, data.normal).normalize();
+//        auto reflected_color = cast_ray(Ray(data.point, R), depth - 1);
+//        return ((local_color * (1 - r)) + (reflected_color * r)).saturate();
+//    }
     return local_color;
 }
 
@@ -259,7 +259,7 @@ std::vector<RayBound> split(int width, int height){
     int step = height / 4;
     int start = 0;
     std::vector<RayBound> output;
-    for (int i = 0; i < cnt; ++i) {
+    for (int i = 0; i < 4; ++i) {
         output.push_back(RayBound{.xs = 0, .xe = width - 1, .ys = start, .ye = (start + step - 1) % width});
         start += step;
     }
@@ -273,10 +273,10 @@ void SceneManager::trace(){
     std::vector<RayThread*> threads;
     auto cam = camers[curr_camera];
     auto origin = cam.position;
-    auto mat = cam.viewMatrix() * cam.projectionMatrix;
+    auto mat = cam.viewMatrix();
     auto inverse = Mat4x4f::Inverse(mat);
     for (auto& bound: v){
-        auto th = new RayThread(img, models, inverse, bound, width, height, origin);
+        auto th = new RayThread(&cam, img,  models, inverse, bound, width, height);
         th->start();
         qDebug() << "started";
         threads.push_back(th);
@@ -286,19 +286,5 @@ void SceneManager::trace(){
         th->wait();
         delete th;
     }
-
-//    for (int x = 0; x < width; x++){
-//        for (int y = 0; y < height; y++){
-////            float px = (2 * ((float)x / (float)width) - 1) * tan(cam.fov / 2 * M_PI / 180) * cam.aspect_ratio;
-////            float py = (1 - 2 * ((float)y / (float)height)) * tan(cam.fov / 2 * M_PI / 180);
-////            auto d = Vec3f{px, py, 1}.normalize();
-////            auto d = canvasToViewPort(x, y);
-////            qDebug() << height / 2 << d.x << d.y << d.z;
-////            return;
-//            auto d = toWorld(x, y, inverse, width, height).normalize();
-//            auto color = traceRay(origin, d, 1, std::numeric_limits<float>::max(), 1) * 255.f;
-//            img.setPixelColor(x, y, QColor(color.x, color.y, color.z));
-//        }
-//    }
     show();
 }

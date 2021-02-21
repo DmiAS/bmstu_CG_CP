@@ -7,19 +7,45 @@ Vec3f RayThread::toWorld(int x, int y){
     return res * inverse;
 }
 
+Vec3f RayThread::toWorld(const Vec3f &u, const Vec3f &v, const Vec3f &w, int x, int y){
+    return u * float(x) - v * float(y) + w;
+}
+
 void RayThread::run()
 {
+//    auto U = cam->up;
+//    auto V = Vec3f::cross(cam->direction, U).normalize();
+//    U = U.normalize();
+//    auto viewPlaneHalfWidth = tan(cam->fov/2.f);
+//    auto viewPlaneHalfHeight = cam->aspect_ratio * viewPlaneHalfWidth;
+//    auto viewPlaneBottomLeftPoint = (cam->position + cam->direction) - V*viewPlaneHalfHeight - U*viewPlaneHalfWidth;
+//    auto xIncVector = (U*2.f*(float)(width >> 1))/(float)width;
+//    auto yIncVector = (V*2.f*(float)(height >> 1))/(float)height;
+    auto u = Vec3f::cross(cam->up, cam->direction).normalize();
+    auto v = cam->up.normalize();
+    auto w = -cam->direction.normalize();
+
+    auto w_ = u * float(-(width >> 1)) + v * float(height >> 1) - w * (float((height >> 1)) / tan(cam->fov / 2 * M_PI / 180));
+
     for (int x = bound.xs; x <= bound.xe; x++){
         for (int y = bound.ys; y <= bound.ye; y++){
-//            float px = (2 * ((float)x / (float)width) - 1) * tan(cam.fov / 2 * M_PI / 180) * cam.aspect_ratio;
-//            float py = (1 - 2 * ((float)y / (float)height)) * tan(cam.fov / 2 * M_PI / 180);
+//            float px = (2 * ((float)x / (float)width) - 1) * tan(cam->fov / 2 * M_PI / 180) * cam->aspect_ratio;
+//            float py = (1 - 2 * ((float)y / (float)height)) * tan(cam->fov / 2 * M_PI / 180);
 //            auto d = Vec3f{px, py, 1}.normalize();
+//            qDebug() << "direction 1 = " << d.x << d.y << d.z;
 //            auto d = canvasToViewPort(x, y);
 //            qDebug() << height / 2 << d.x << d.y << d.z;
 //            return;
-            auto d = toWorld(x, y).normalize();
+//            auto m = toWorld(x, y).normalize();
+//            qDebug() << "direction 2 = " << m.x << m.y << m.z;
+//            auto viewPlanePoint = viewPlaneBottomLeftPoint + xIncVector * (float)x + yIncVector * (float)y;
+//            auto castRay = (viewPlanePoint - cam->position).normalize();
+//            qDebug() << "new_direction = " << castRay.x << castRay.y << castRay.z;
+//            autod = camera_d
 //            auto color = traceRay(origin, d, 1, std::numeric_limits<float>::max(), 1) * 255.f;
-            auto color = cast_ray(Ray(origin, d)) * 255.f;
+            auto d = toWorld(u, v, w_, x, y).normalize();
+//            qDebug() << "direction = " << d.x << d.y << d.z;
+            auto color = cast_ray(Ray(cam->position, d)) * 255.f;
             img.setPixelColor(x, y, QColor(color.x, color.y, color.z));
 //            img.setPixelColor(x, y, Qt::red);
         }
