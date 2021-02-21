@@ -18,7 +18,8 @@ void RayThread::run()
 //            qDebug() << height / 2 << d.x << d.y << d.z;
 //            return;
             auto d = toWorld(x, y).normalize();
-            auto color = traceRay(origin, d, 1, std::numeric_limits<float>::max(), 1) * 255.f;
+//            auto color = traceRay(origin, d, 1, std::numeric_limits<float>::max(), 1) * 255.f;
+            auto color = cast_ray(Ray(origin, d)) * 255.f;
             img.setPixelColor(x, y, QColor(color.x, color.y, color.z));
 //            img.setPixelColor(x, y, Qt::red);
         }

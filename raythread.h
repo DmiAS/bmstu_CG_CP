@@ -2,18 +2,11 @@
 #define RAYTHREAD_H
 #include <QThread>
 #include <QImage>
-#include "model.h"
 #include "light.h"
 
 struct RayBound{
     int xs, xe;
     int ys, ye;
-};
-
-struct InterSectionData{
-    Model model;
-    float t;
-    Vec3f normal;
 };
 
 class RayThread: public QThread
@@ -29,8 +22,10 @@ protected:
 private:
     Vec3f toWorld(int x, int y);
     Vec3f traceRay(const Vec3f& o, const Vec3f& d, float t_min, float t_max, int depth);
+    Vec3f cast_ray(const Ray& ray, int depth = 0);
 
     InterSectionData closestIntersection(const Vec3f& o, const Vec3f& d, float t_min, float t_max);
+    bool sceneIntersect(const Ray& ray, InterSectionData& data, float t_min, float t_max);
 
     Vec3f computeLightning(const Vec3f& p, const Vec3f& n, const Vec3f& direction, float specular);
 

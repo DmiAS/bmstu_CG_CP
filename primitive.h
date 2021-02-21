@@ -75,4 +75,5 @@ private:
   Vec3f m_pos;
   float m_radius;
 };
+
 #endif // PRIMITIVE_H

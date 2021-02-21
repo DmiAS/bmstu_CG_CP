@@ -13,6 +13,9 @@
 
 using data_intersect = std::pair<float, Vec3f>;
 const float max_angle = 360, rot_step_x = 15, rot_step_y = 15, rot_step_z = 15;
+
+struct InterSectionData;
+
 class Model{
 
 public:
@@ -94,6 +97,7 @@ public:
     virtual bool isObject() {return true;}
 
     std::pair<data_intersect, data_intersect> interSect(const Vec3f& o, const Vec3f& d);
+    bool intersect(const Ray& ray, InterSectionData& data);
 
     NonhierSphere getBoundingBall() const;
 
@@ -106,6 +110,11 @@ private:
     }
 
 
+    bool triangleIntersect(int index, const Ray& ray,
+                           const Mat4x4f& objToWorld, const Mat4x4f& rotMatrix,
+                           InterSectionData& data);
+
+
 public:
     std::vector<uint32_t> index_buffer;
     std::vector<Vertex> vertex_buffer;
@@ -115,6 +124,7 @@ public:
     bool has_texture = false;
     float specular = 0.5f;
     float reflective = 0.8f;
+    float refractive = 1.f;
     float transparency = 0.f;
     Vec3f color;
     NonhierSphere m_boundingBall;
@@ -124,5 +134,12 @@ private:
     float shift_x, shift_y, shift_z;
     float scale_x = 1.f, scale_y = 1.f, scale_z = 1.f;
     uint32_t uid;
+};
+
+struct InterSectionData{
+    Model model;
+    float t;
+    Vec3f point;
+    Vec3f normal;
 };
 #endif // MODEL_H

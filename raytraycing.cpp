@@ -119,6 +119,67 @@ Vec3f RayThread::traceRay(const Vec3f& o, const Vec3f& d, float t_min, float t_m
 
 }
 
+bool RayThread::sceneIntersect(const Ray &ray, InterSectionData &data, float t_min, float t_max){
+    float closeset_t = std::numeric_limits<float>::infinity();
+    bool intersected = false;
+    for (auto& model: models){
+        InterSectionData d;
+        if (model->intersect(ray, d) && d.t > t_min && d.t < t_max && d.t < closeset_t){
+            closeset_t = d.t;
+            intersected = true;
+            data = d;
+            data.point = ray.origin + ray.direction * d.t;
+            data.model = *model;
+        }
+    }
+
+    return intersected;
+}
+
+Vec3f reflect(const Vec3f &I, const Vec3f &N) {
+    return I - Vec3f::dot(N*2.f, Vec3f::dot(I, N));
+}
+
+Vec3f refract(const Vec3f &I, const Vec3f &N, const float eta_t, const float eta_i=1.f) { // Snell's law
+    float cosi = - std::max(-1.f, std::min(1.f, Vec3f::dot(I, N)));
+    if (cosi<0) return refract(I, -N, eta_i, eta_t); // if the ray comes from the inside the object, swap the air and the media
+    float eta = eta_i / eta_t;
+    float k = 1 - eta*eta*(1 - cosi*cosi);
+    return k<0 ? Vec3f(1,0,0) : I*eta + N*(eta*cosi - sqrtf(k)); // k<0 = total reflection, no ray to refract. I refract it anyways, this has no physical meaning
+}
+Vec3f RayThread::cast_ray(const Ray &ray, int depth){
+    float t_min = 1.f, t_max = std::numeric_limits<float>::max();
+    InterSectionData data;
+    if (depth > 4 || !sceneIntersect(ray, data, t_min, t_max))
+        return Vec3f{0, 0, 0};
+//    Vec3f reflect_dir = reflect(ray.direction, N).normalize();
+//    Vec3f refract_dir = refract(ray.direction, N, data.model.refractive).normalize();
+//    Vec3f reflect_orig = Vec3f::dot(reflect_dir, N) < 0 ? point - N*1e-3 : point + N*1e-3; // offset the original point to avoid occlusion by the object itself
+//    Vec3f refract_orig = Vec3f::dot(refract_dir, N) < 0 ? point - N*1e-3 : point + N*1e-3;
+//    Vec3f reflect_color = cast_ray(Ray(reflect_orig, reflect_dir), depth + 1);
+//    Vec3f refract_color = cast_ray(Ray(refract_orig, refract_dir), depth + 1);
+
+    float diffuse_light_intensity = 0, specular_light_intensity = 0;
+    for (auto& model: models) {
+        if (model->isObject()) continue;
+        Light* light = dynamic_cast<Light*>(model);
+        if (!light->t == Light::light_type::point) continue;
+        Vec3f light_dir      = (light->position - data.point).normalize();
+//        float light_distance = (light->position - point).len();
+
+//        Vec3f shadow_orig = Vec3f::dot(light_dir, N) < 0 ? point - N*1e-3 : point + N*1e-3; // checking if the point lies in the shadow of the lights[i]
+//        InterSectionData tmpData;
+//        if (sceneIntersect(Ray(shadow_orig, light_dir), tmpData, t_min, t_max) && (tmpData.point - shadow_orig).len() < light_distance)
+//            continue;
+
+        diffuse_light_intensity  += light->lightning_power * std::max(0.f, Vec3f::dot(light_dir, data.normal));
+//        specular_light_intensity += powf(std::max(0.f, Vec3f::dot(-reflect(-light_dir, N), ray.direction)), data.model.specular)*light->lightning_power;
+    }
+    return data.model.color * diffuse_light_intensity;
+
+//    return data.model.color * diffuse_light_intensity + Vec3f(1., 1., 1.)*specular_light_intensity + reflect_color + refract_color;
+}
+
 Vec4f toWorld(int x, int y, const Mat4x4f& inverse, int width, int height){
     float ndc_x = (float)(x << 1) / (float)width - 1.f;
     float ndc_y = 1.f - (float)(y << 1) / (float)height;

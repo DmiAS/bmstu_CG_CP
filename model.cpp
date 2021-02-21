@@ -3,6 +3,7 @@
 #include "bary.h"
 #include <QtDebug>
 
+const float eps_intersect = std::numeric_limits<float>::epsilon();
 Model::Model(const std::string& fileName, uint32_t uid_){
     uid = uid_;
     objl::Loader loader;
@@ -98,7 +99,72 @@ Vertex transform_position(const Vertex& v, const Mat4x4f& objToWorld, const Mat4
 //   return intersected;
 //}
 
-const float eps_intersect = std::numeric_limits<float>::epsilon();
+bool Model::triangleIntersect(int index, const Ray &ray, const Mat4x4f &objToWorld, const Mat4x4f &rotMatrix, InterSectionData &data){
+    auto p0 = transform_position(vertex_buffer[index_buffer[3 * index]], objToWorld, rotMatrix);
+    auto p1 = transform_position(vertex_buffer[index_buffer[3 * index + 1]], objToWorld, rotMatrix);
+    auto p2 = transform_position(vertex_buffer[index_buffer[3 * index + 2]], objToWorld, rotMatrix);
+
+    auto edge1 = p1.pos - p0.pos;
+    auto edge2 = p2.pos - p0.pos;
+
+    auto h = Vec3f::cross(ray.direction, edge2);
+    auto a = Vec3f::dot(edge1, h);
+
+    bool intersected = false;
+
+    if (fabs(a) < eps_intersect)
+        return intersected;
+
+    auto f = 1.f / a;
+    auto s = ray.origin - p0.pos;
+
+    auto u = f * Vec3f::dot(s, h);
+
+    if (u < 0.f || u > 1.f)
+        return intersected;
+
+    auto q = Vec3f::cross(s, edge1);
+
+    auto v = f * Vec3f::dot(ray.direction, q);
+
+    if (v < 0.f || u + v > 1.f)
+        return intersected;
+
+    float t = f * Vec3f::dot(edge2, q);
+
+    if (t > eps_intersect){
+        data.normal = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, Vec3f{u, v, 1 - u - v});
+        data.t = t;
+        intersected = true;
+    }
+
+    return intersected;
+}
+
+bool Model::intersect(const Ray &ray, InterSectionData &data){
+    float model_dist = std::numeric_limits<float>::max();
+
+    bool intersected = false;
+
+    if (!m_boundingBall.intersect(ray)) return intersected;
+
+    auto objToWorld = this->objToWorld();
+    auto rotMatrix = this->rotation_matrix;
+    int cnt = 0;
+    for (int i = 0; i < index_buffer.size() / 3; i++){
+        InterSectionData d;
+        if (triangleIntersect(i, ray, objToWorld, rotMatrix, d) && d.t < model_dist){
+            model_dist = d.t;
+            data.t = d.t;
+            data.normal = d.normal;
+            intersected = true;
+        }
+    }
+
+    return intersected;
+}
+
+
 std::pair<data_intersect, data_intersect> Model::interSect(const Vec3f& origin, const Vec3f& direction){
     float t1 = std::numeric_limits<float>::max();
     float t2 = t1;
