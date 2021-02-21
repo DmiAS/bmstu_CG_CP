@@ -28,60 +28,83 @@ InterSectionData RayThread::closestIntersection(const Vec3f& o, const Vec3f& d, 
     return {closest_model, closest_t, normal.normalize()};
 }
 
+Vec3f reflect(const Vec3f &L, const Vec3f &N) {
+//    return I - Vec3f::dot(N*2.f, Vec3f::dot(I, N));
+    return (N * 2.f * Vec3f::dot(N, L)) - L;
+}
+
 Vec3f RayThread::computeLightning(const Vec3f &p, const Vec3f &n, const Vec3f &direction, float specular){
     Vec3f i;
     Vec3f L;
-//    specular = 0.5f;
+    specular = 0.6f;
+    float di = 0.2f;
 
+    Vec3f ambient, diffuse, spec;
 
     for (auto &model: models){
         if (model->isObject()) continue;
         Light* light = dynamic_cast<Light*>(model);
         if (light->t == Light::light_type::ambient)
-            i += light->color_intensity;
+//            i += light->color_intensity;
+            ambient = light->color_intensity;
         else{
             float t_max;
             if (light->t == Light::light_type::point){
-                L = Vec3f{light->position.x - p.x,
-                     light->position.y - p.y,
-                     light->position.z - p.z,
-                    }.normalize();
-                t_max = 1;
+//                L = Vec3f{light->position.x - p.x,
+//                     light->position.y - p.y,
+//                     light->position.z - p.z,
+//                    }.normalize();
+//                t_max = 1;
+                L = (light->position - p).normalize();
+//                L = (p - light->position).normalize();
             } else{
                 L = light->direction;
                 t_max = std::numeric_limits<float>::max();
             }
 
+            diffuse = (light->color_intensity * std::max(0.f, Vec3f::dot(n, L))) * di;
+            auto reflectDir = reflect(-L, n).normalize();
+            auto tmp = Vec3f::dot(-direction, reflectDir);
+            float sp = std::pow(std::fmax(tmp, 0.f), 80);
+            spec = light->color_intensity * sp * specular;
 //            InterSectionData
 //            auto res = closestIntersection(p, L, 1e-3, t_max);
 //            if (fabs(res.t) < eps_float)
 //                continue;
-            Vec3f shadow_orig = Vec3f::dot(L, n) < 0 ? p - n*1e-3 : p + n*1e-3; // checking if the point lies in the shadow of the lights[i]
-            InterSectionData tmpData;
-            if (sceneIntersect(Ray(shadow_orig, L), tmpData, 1e-3, t_max) && (tmpData.point - shadow_orig).len() < L.len())
-                continue;
+//            Vec3f shadow_orig = Vec3f::dot(L, n) < 0 ? p - n*1e-3 : p + n*1e-3; // checking if the point lies in the shadow of the lights[i]
+//            InterSectionData tmpData;
+//            if (sceneIntersect(Ray(shadow_orig, L), tmpData, 1e-3, t_max) && (tmpData.point - shadow_orig).len() < L.len())
+//                continue;
 
-            float n_dot_l = Vec3f::dot(n, L);
-            if (n_dot_l > 0){
-                float factor = n_dot_l / (n.len() * L.len());
-                i = i + (light->color_intensity * factor);
-            }
+//            i += light->color_intensity * std::max(0.f, Vec3f::dot(n, -L));
 
-//            mirroing
-            if (!(fabs(specular + 1)< eps_float)){
-                auto r = (n * 2 * Vec3f::dot(n, L)).normalize() - L;
-                float r_dot_v = Vec3f::dot(r, direction);
-                if (r_dot_v > 0){
-                    auto len = r.len() * direction.len();
-                    auto factor = pow(r_dot_v / len, specular);
-                    i = i + light->color_intensity * factor;
-                }
-            }
+//            Vec3f R = reflect(L, n);
+//            i += (light->color_intensity * std::pow(std::max(0.f, Vec3f::dot(R, -direction)), 12500)) * specular;
+
+//            Vec3f R = (n * Vec3f::dot(n, L) * 2.f).normalize() - L;
+//            specular = powf(Vec3f::dot(-direction, R), 10);
+
+//            float n_dot_l = Vec3f::dot(n, L);
+//            if (n_dot_l > 0){
+//                float factor = n_dot_l / (n.len() * L.len());
+//                i = i + (light->color_intensity * factor);
+//            }
+
+//////            mirroing
+//            if (!(fabs(specular + 1)< eps_float)){
+//                auto r = (n * 2 * Vec3f::dot(n, L)).normalize() - L;
+//                float r_dot_v = Vec3f::dot(r, direction);
+//                if (r_dot_v > 0){
+//                    auto len = r.len() * direction.len();
+//                    auto factor = pow(r_dot_v / len, specular);
+//                    i = i + light->color_intensity * factor;
+//                }
+//            }
         }
 
     }
 
-    return i.saturate();
+    return (ambient + diffuse + spec).saturate();
 }
 
 Vec3f reflectRay(const Vec3f& r, const Vec3f& n){
@@ -136,10 +159,6 @@ bool RayThread::sceneIntersect(const Ray &ray, InterSectionData &data, float t_m
     return intersected;
 }
 
-Vec3f reflect(const Vec3f &I, const Vec3f &N) {
-//    return I - Vec3f::dot(N*2.f, Vec3f::dot(I, N));
-    return (N * 2.f * Vec3f::dot(N, I)) - I;
-}
 
 Vec3f refract(const Vec3f &I, const Vec3f &N, const float eta_t, const float eta_i=1.f) { // Snell's law
     float cosi = - std::max(-1.f, std::min(1.f, Vec3f::dot(I, N)));

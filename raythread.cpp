@@ -13,14 +13,6 @@ Vec3f RayThread::toWorld(const Vec3f &u, const Vec3f &v, const Vec3f &w, int x, 
 
 void RayThread::run()
 {
-//    auto U = cam->up;
-//    auto V = Vec3f::cross(cam->direction, U).normalize();
-//    U = U.normalize();
-//    auto viewPlaneHalfWidth = tan(cam->fov/2.f);
-//    auto viewPlaneHalfHeight = cam->aspect_ratio * viewPlaneHalfWidth;
-//    auto viewPlaneBottomLeftPoint = (cam->position + cam->direction) - V*viewPlaneHalfHeight - U*viewPlaneHalfWidth;
-//    auto xIncVector = (U*2.f*(float)(width >> 1))/(float)width;
-//    auto yIncVector = (V*2.f*(float)(height >> 1))/(float)height;
     auto u = Vec3f::cross(cam->up, cam->direction).normalize();
     auto v = cam->up.normalize();
     auto w = -cam->direction.normalize();
@@ -44,7 +36,6 @@ void RayThread::run()
 //            autod = camera_d
 //            auto color = traceRay(origin, d, 1, std::numeric_limits<float>::max(), 1) * 255.f;
             auto d = toWorld(u, v, w_, x, y).normalize();
-//            qDebug() << "direction = " << d.x << d.y << d.z;
             auto color = cast_ray(Ray(cam->position, d)) * 255.f;
             img.setPixelColor(x, y, QColor(color.x, color.y, color.z));
 //            img.setPixelColor(x, y, Qt::red);

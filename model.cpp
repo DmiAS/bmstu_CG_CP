@@ -77,10 +77,11 @@ bool Model::triangleIntersect(int index, const Ray &ray, const Mat4x4f &objToWor
     float t = f * Vec3f::dot(edge2, q);
 
     if (t > eps_intersect){
-        data.normal = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, Vec3f{u, v, 1 - u - v}).normalize();
+        auto bary = Vec3f{1 - u - v, u, v};
+        data.normal = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, bary).normalize();
         data.t = t;
         intersected = true;
-        data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, Vec3f{u, v, 1 - u - v});
+        data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, bary);
     }
 
     return intersected;
@@ -91,7 +92,7 @@ bool Model::intersect(const Ray &ray, InterSectionData &data){
 
     bool intersected = false;
 
-    if (!m_boundingBall.intersect(ray)) return intersected;
+//    if (!m_boundingBall.intersect(ray)) return intersected;
 
     auto objToWorld = this->objToWorld();
     auto rotMatrix = this->rotation_matrix;
