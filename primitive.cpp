@@ -32,7 +32,7 @@ size_t quadraticRoots( double A, double B, double C, double roots[2] )
     }
 }
 
-bool NonhierSphere::intersect(const Ray& ray, Intersection& j) const
+bool NonhierSphere::intersect(const Ray& ray) const
 {
 
   double roots[2];
@@ -58,24 +58,24 @@ bool NonhierSphere::intersect(const Ray& ray, Intersection& j) const
     float min = std::min<float>(roots[0], roots[1]);
     float t = (num_roots == 1) ? roots[0] : ((min < 0) ? std::max<float>(roots[0], roots[1]) : min);
     if(t < 0) return false;
-    j.q = ray.origin + ray.direction * t;
-    j.n = (j.q - m_pos);
+//    j.q = ray.origin + ray.direction * t;
+//    j.n = (j.q - m_pos);
 
-    // To calculate the parametric coordinates of the point on the sphere we need to define 3 bivariate functions.
-    // For a sphere the spherical coordinate system can be used to define the X, Y, Z coordinates like so:
-    // X = r*cos(THETA)*sin(PHI)
-    // Y = -r*cos(PHI)
-    // Z = -r*sin(THETA)*sin(PHI)
-    // Where THETA = atan2(-(z - center.z), x - center.x) and PHI = acos(-(y - center.y) / r)
-    // And the parameters u = (THETA + PI) / (2*PI) and v = PHI / PI; u,v E [0, 1]
-    float theta = atan2(-j.n.z, j.n.x);
-    float phi = acos(-j.n.y / m_radius);
+//    // To calculate the parametric coordinates of the point on the sphere we need to define 3 bivariate functions.
+//    // For a sphere the spherical coordinate system can be used to define the X, Y, Z coordinates like so:
+//    // X = r*cos(THETA)*sin(PHI)
+//    // Y = -r*cos(PHI)
+//    // Z = -r*sin(THETA)*sin(PHI)
+//    // Where THETA = atan2(-(z - center.z), x - center.x) and PHI = acos(-(y - center.y) / r)
+//    // And the parameters u = (THETA + PI) / (2*PI) and v = PHI / PI; u,v E [0, 1]
+//    float theta = atan2(-j.n.z, j.n.x);
+//    float phi = acos(-j.n.y / m_radius);
 
-    j.u = (theta + M_PI) / (2 * M_PI);
-    j.v = phi / M_PI;
+//    j.u = (theta + M_PI) / (2 * M_PI);
+//    j.v = phi / M_PI;
 
-    j.pu = Vec3f(-m_radius*sin(theta)*sin(phi), 0, -m_radius*cos(theta)*sin(phi));
-    j.pv = Vec3f(m_radius*cos(theta)*cos(phi), m_radius*sin(phi), -m_radius*sin(theta)*cos(phi));
+//    j.pu = Vec3f(-m_radius*sin(theta)*sin(phi), 0, -m_radius*cos(theta)*sin(phi));
+//    j.pv = Vec3f(m_radius*cos(theta)*cos(phi), m_radius*sin(phi), -m_radius*sin(theta)*cos(phi));
 
     //Vector3D pu1, pv1;
     //if(j.n[2] <= j.n[0] && j.n[2] <= j.n[1]) pu1 = Vector3D(-j.n[1], j.n[2], 0.0);
@@ -88,3 +88,7 @@ bool NonhierSphere::intersect(const Ray& ray, Intersection& j) const
 
   return false;
 }
+
+NonhierSphere::~NonhierSphere(){}
+
+Primitive::~Primitive(){}

@@ -41,62 +41,62 @@ Vertex transform_position(const Vertex& v, const Mat4x4f& objToWorld, const Mat4
     return out;
 }
 
-bool Model::intersect(const Ray &ray, Intersection &j) const{
-    bool intersected = false;
+//bool Model::intersect(const Ray &ray, Intersection &j) const{
+//    bool intersected = false;
 
-  // Check if bounding ball has been intersected first
-  // If not then the mesh cannot have been intersected
-   Intersection k;
-   bool bball_intersected = m_boundingBall.intersect(ray, k);
-   if(bball_intersected)
-   {
-     // Loop through each face and check if there is an intersection
-     float epsilon = std::numeric_limits<float>::epsilon();
-     float prev_t = std::numeric_limits<float>::infinity();
-     auto objToWorld = this->objToWorld();
-     auto rotMatrix = this->rotation_matrix;
-     for (int i = 0; i < index_buffer.size() / 3; i++){
-         auto p0 = transform_position(vertex_buffer[index_buffer[3 * i]], objToWorld, rotMatrix);
-         auto p1 = transform_position(vertex_buffer[index_buffer[3 * i + 1]], objToWorld, rotMatrix);
-         auto p2 = transform_position(vertex_buffer[index_buffer[3 * i + 2]], objToWorld, rotMatrix);
+//  // Check if bounding ball has been intersected first
+//  // If not then the mesh cannot have been intersected
+//   Intersection k;
+//   bool bball_intersected = m_boundingBall.intersect(ray, k);
+//   if(bball_intersected)
+//   {
+//     // Loop through each face and check if there is an intersection
+//     float epsilon = std::numeric_limits<float>::epsilon();
+//     float prev_t = std::numeric_limits<float>::infinity();
+//     auto objToWorld = this->objToWorld();
+//     auto rotMatrix = this->rotation_matrix;
+//     for (int i = 0; i < index_buffer.size() / 3; i++){
+//         auto p0 = transform_position(vertex_buffer[index_buffer[3 * i]], objToWorld, rotMatrix);
+//         auto p1 = transform_position(vertex_buffer[index_buffer[3 * i + 1]], objToWorld, rotMatrix);
+//         auto p2 = transform_position(vertex_buffer[index_buffer[3 * i + 2]], objToWorld, rotMatrix);
 
-         auto edge1 = p1.pos - p0.pos;
-         auto edge2 = p2.pos - p0.pos;
+//         auto edge1 = p1.pos - p0.pos;
+//         auto edge2 = p2.pos - p0.pos;
 
-         auto h = Vec3f::cross(ray.direction, edge2);
-         auto a = Vec3f::dot(edge1, h);
+//         auto h = Vec3f::cross(ray.direction, edge2);
+//         auto a = Vec3f::dot(edge1, h);
 
-         if (fabs(a) < epsilon)
-             continue;
+//         if (fabs(a) < epsilon)
+//             continue;
 
-         auto f = 1.f / a;
-         auto s = ray.origin - p0.pos;
+//         auto f = 1.f / a;
+//         auto s = ray.origin - p0.pos;
 
-         auto u = f * Vec3f::dot(s, h);
+//         auto u = f * Vec3f::dot(s, h);
 
-         if (u < 0.f || u > 1.f)
-             continue;
+//         if (u < 0.f || u > 1.f)
+//             continue;
 
-         auto q = Vec3f::cross(s, edge1);
+//         auto q = Vec3f::cross(s, edge1);
 
-         auto v = f * Vec3f::dot(ray.direction, q);
+//         auto v = f * Vec3f::dot(ray.direction, q);
 
-         if (v < 0.f || u + v > 1.f)
-             continue;
+//         if (v < 0.f || u + v > 1.f)
+//             continue;
 
-         float t = f * Vec3f::dot(edge2, q);
+//         float t = f * Vec3f::dot(edge2, q);
 
-         if (t < 0 || prev_t < t) continue;
+//         if (t < 0 || prev_t < t) continue;
 
-         auto normal = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, Vec3f{u, v, 1 - u - v});
-         intersected = true;
-         prev_t = t;
-         j.n = normal;
-     }
-   }
+//         auto normal = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, Vec3f{u, v, 1 - u - v});
+//         intersected = true;
+//         prev_t = t;
+//         j.n = normal;
+//     }
+//   }
 
-   return intersected;
-}
+//   return intersected;
+//}
 
 const float eps_intersect = std::numeric_limits<float>::epsilon();
 std::pair<data_intersect, data_intersect> Model::interSect(const Vec3f& origin, const Vec3f& direction){
@@ -104,6 +104,8 @@ std::pair<data_intersect, data_intersect> Model::interSect(const Vec3f& origin, 
     float t2 = t1;
 
     Vec3f n1, n2;
+
+    if (!m_boundingBall.intersect(Ray(origin, direction))) return {{t1, n1}, {t2, n2}};
 
     auto objToWorld = this->objToWorld();
     auto rotMatrix = this->rotation_matrix;
