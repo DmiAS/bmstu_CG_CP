@@ -122,8 +122,8 @@ public:
     Mat4x4f scale_matrix;
     QImage texture;
     bool has_texture = false;
-    float specular = 0.5f;
-    float reflective = 0.8f;
+    float specular = 1.f;
+    float reflective = 0.5f;
     float refractive = 1.f;
     float transparency = 0.f;
     Vec3f color;
@@ -141,5 +141,6 @@ struct InterSectionData{
     float t;
     Vec3f point;
     Vec3f normal;
+    Vec3f color;
 };
 #endif // MODEL_H

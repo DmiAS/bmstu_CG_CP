@@ -22,7 +22,7 @@ protected:
 private:
     Vec3f toWorld(int x, int y);
     Vec3f traceRay(const Vec3f& o, const Vec3f& d, float t_min, float t_max, int depth);
-    Vec3f cast_ray(const Ray& ray, int depth = 0);
+    Vec3f cast_ray(const Ray& ray, int depth = 10);
 
     InterSectionData closestIntersection(const Vec3f& o, const Vec3f& d, float t_min, float t_max);
     bool sceneIntersect(const Ray& ray, InterSectionData& data, float t_min, float t_max);

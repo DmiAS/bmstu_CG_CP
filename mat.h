@@ -259,10 +259,10 @@ public:
             auto xaxis = (Vec3f::cross(up, zaxis)).normalize();
             auto yaxis = Vec3f::cross(zaxis, xaxis);
             return {
-                xaxis.x,  yaxis.x, zaxis.x, 0,
-                xaxis.y,  yaxis.y, zaxis.y, 0,
-                xaxis.z,  yaxis.z, zaxis.z, 0,
-                -Vec3f::dot(xaxis, position), -Vec3f::dot(yaxis, position), -Vec3f::dot(zaxis, position) , 1
+                xaxis.x,  yaxis.x, zaxis.x, (T)0,
+                xaxis.y,  yaxis.y, zaxis.y, (T)0,
+                xaxis.z,  yaxis.z, zaxis.z, (T)0,
+                -Vec3f::dot(xaxis, position), -Vec3f::dot(yaxis, position), -Vec3f::dot(zaxis, position) , (T)1
             };
         }
     }
@@ -272,10 +272,10 @@ public:
             angle = angle * (T)M_PI / (T)180.0;
             float sin = std::sin(angle), cos = std::cos(angle);
             return {
-            cos+p.x*p.x*(1-cos), p.x*p.y*(1-cos)-p.z*sin, p.x*p.z*(1-cos)+p.y*sin, 0,
-            p.y*p.x*(1-cos)+p.z*sin,  cos+p.y*p.y*(1-cos), p.y*p.z*(1-cos)-p.x*sin, 0,
-            p.z*p.x*(1-cos)-p.y*sin, p.z*p.y*(1-cos)+p.x*sin, cos+p.z*p.z*(1-cos),  0,
-                    0, 0, 0, 1
+            cos+p.x*p.x*(1-cos), p.x*p.y*(1.f-cos)-p.z*sin, p.x*p.z*(1.f-cos)+p.y*sin, (T)0,
+            p.y*p.x*(1.f-cos)+p.z*sin,  cos+p.y*p.y*(1.f-cos), p.y*p.z*(1.f-cos)-p.x*sin, (T)0,
+            p.z*p.x*(1.f-cos)-p.y*sin, p.z*p.y*(1.f-cos)+p.x*sin, cos+p.z*p.z*(1.f-cos),  (T)0,
+                    (T)0, (T)0, (T)0, (T)1
         };
         }
     }
