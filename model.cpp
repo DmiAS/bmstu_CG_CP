@@ -131,13 +131,13 @@ bool Model::triangleIntersect(const Face& face, const Ray &ray, const Mat4x4f &o
     float t = f * Vec3f::dot(edge2, q);
 
     if (t > eps_intersect){
-        auto bary = Vec3f{u, v, 1 - u - v};
-        auto p = ray.origin + ray.direction * t;
-        auto myBary = toBarycentric(p0.pos, p1.pos, p2.pos, p);
-        data.normal = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, myBary).normalize();
+        auto bary = Vec3f{1 - u - v, u, v};
+//        auto p = ray.origin + ray.direction * t;
+//        auto myBary = toBarycentric(p0.pos, p1.pos, p2.pos, p);
+        data.normal = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, bary).normalize();
         data.t = t;
         intersected = true;
-        data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, myBary);
+        data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, bary);
 //        data.color =data.normal;
     }
 
@@ -170,7 +170,7 @@ bool Model::triangleIntersect(const Face& face, const Ray &ray, const Mat4x4f &o
 //    data.color = {1.f, 0.f, 0.f};
 
 //    data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, bary);
-    return true;
+    return intersected;
 }
 
 bool Model::intersect(const Ray &ray, InterSectionData &data){
@@ -180,6 +180,7 @@ bool Model::intersect(const Ray &ray, InterSectionData &data){
 
 //    if (!m_boundingBall.intersect(ray)) return intersected;
 
+//    qDebug() << "face new";
     auto objToWorld = this->objToWorld();
     auto rotMatrix = this->rotation_matrix;
     int cnt = 0;

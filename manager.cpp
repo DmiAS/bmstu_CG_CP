@@ -16,7 +16,7 @@ void denormolize(int width, int height, Vertex& v){
 
 
 void SceneManager::init(){
-    models.push_back(new Light(Light::light_type::ambient, {0.2, 0.2, 0.2}));
+    models.push_back(new Light(Light::light_type::ambient, {0.2f, 0.2f, 0.2f}));
 //    models.push_back(new Light(Light::light_type::point, {0, 0, 1}, {.9f, .9f, .9f}, {0.f, 0.f, -40.f}, 1.f));
 //    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
     pixel_shader = std::make_shared<ColorShader>();
@@ -277,7 +277,7 @@ void SceneManager::uploadLight(std::string name, uint32_t &uid){
 
     uid = models_index++;
     if (name == "Точечный источник"){
-        models.push_back(new Light(Light::light_type::point, {1.f, 1.f, 1.f}, {0.f, 6.f, 0.f},
+        models.push_back(new Light(Light::light_type::point, {1.f, 1.f, 1.f}, {0.f, 0.f, -4.f},
                                    1, {0.f, 0.f, 0.f}, files.at(name), uid, {0.2f, 0.2f, 0.2f}));
     }
 
