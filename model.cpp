@@ -137,39 +137,28 @@ bool Model::triangleIntersect(const Face& face, const Ray &ray, const Mat4x4f &o
         data.normal = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, bary).normalize();
         data.t = t;
         intersected = true;
-        data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, bary);
+        if (this->has_texture){
+            float pixel_u = interPolateCord(p0.u , p1.u, p2.u, bary);
+            float pixel_v = interPolateCord(p0.v, p1.v, p2.v, bary);
+
+            int x = std::floor(pixel_u * (texture.width()) - 1);
+            int y = std::floor(pixel_v * (texture.height() - 1));
+
+            if (x < 0) x = 0;
+            if (y < 0) y = 0;
+
+            auto color = texture.pixelColor(x, y);
+            auto red = (float)color.red();
+            auto green = (float)color.green();
+            auto blue = (float)color.blue();
+            data.color = Vec3f{red / 255.f,
+                    green/ 255.f ,
+                    blue /255.f};
+
+        }else
+            data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, bary);
 //        data.color =data.normal;
     }
-
-//    Vec3f v0v1 = p1.pos - p0.pos;
-//    Vec3f v0v2 = p2.pos - p0.pos;
-//    Vec3f pvec = Vec3f::cross(ray.direction, v0v2);
-//    float det = Vec3f::dot(v0v1, pvec);
-//    if (fabs(det) < eps_intersect) return false;
-
-//    float invDet = 1 / det;
-
-//    Vec3f tvec = ray.origin - p0.pos;
-//    float u = Vec3f::dot(tvec, pvec) * invDet;
-//    if (u < 0 || u > 1) return false;
-
-//    Vec3f qvec = Vec3f::cross(tvec, v0v1);
-//    float v = Vec3f::dot(ray.direction, qvec) * invDet;
-//    if (v < 0 || u + v > 1) return false;
-
-//    float t = Vec3f::dot(v0v2, qvec) * invDet;
-
-//    Vec3f bary = {u, v, 1 - u - v};
-//    Vec3f normal = Vec3f::cross(v0v1, v0v2);
-////    data.normal = normal.hadamard(bary).normalize();
-//    data.normal = normal.normalize();
-////    data.normal = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, bary).normalize();
-//    data.t = t;
-//    intersected = true;
-//    data.color = p0.color;
-//    data.color = {1.f, 0.f, 0.f};
-
-//    data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, bary);
     return intersected;
 }
 
@@ -196,67 +185,6 @@ bool Model::intersect(const Ray &ray, InterSectionData &data){
     return intersected;
 }
 
-
-std::pair<data_intersect, data_intersect> Model::interSect(const Vec3f& origin, const Vec3f& direction){
-    float t1 = std::numeric_limits<float>::max();
-    float t2 = t1;
-
-    Vec3f n1, n2;
-
-    if (!m_boundingBall.intersect(Ray(origin, direction))) return {{t1, n1}, {t2, n2}};
-
-    auto objToWorld = this->objToWorld();
-    auto rotMatrix = this->rotation_matrix;
-    int cnt = 0;
-    for (auto& face: faces){
-        auto p0 = transform_position(face.a, objToWorld, rotMatrix);
-        auto p1 = transform_position(face.b, objToWorld, rotMatrix);
-        auto p2 = transform_position(face.c, objToWorld, rotMatrix);
-
-        auto edge1 = p1.pos - p0.pos;
-        auto edge2 = p2.pos - p0.pos;
-
-        auto h = Vec3f::cross(direction, edge2);
-        auto a = Vec3f::dot(edge1, h);
-
-        if (fabs(a) < eps_intersect)
-            continue;
-
-        auto f = 1.f / a;
-        auto s = origin - p0.pos;
-
-        auto u = f * Vec3f::dot(s, h);
-
-        if (u < 0.f || u > 1.f)
-            continue;
-
-        auto q = Vec3f::cross(s, edge1);
-
-        auto v = f * Vec3f::dot(direction, q);
-
-        if (v < 0.f || u + v > 1.f)
-            continue;
-
-        float t = f * Vec3f::dot(edge2, q);
-
-        if (t > eps_intersect){
-            auto normal = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, Vec3f{u, v, 1 - u - v});
-            if ( t1 < std::numeric_limits<float>::max()){
-                t2 = t;
-                n2 = normal;
-                cnt += 1;
-            }
-            else{
-                t1 = t;
-                n1 = normal;
-                cnt += 1;
-            }
-        }
-    }
-
-    return {{t1, n1}, {t2, n2}};
-
-}
 
 NonhierSphere Model::getBoundingBall() const{
     Vec3f C = vertex_buffer[0].pos + (vertex_buffer[1].pos - vertex_buffer[0].pos) * 0.5;
