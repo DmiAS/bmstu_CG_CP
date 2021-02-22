@@ -16,8 +16,8 @@ void denormolize(int width, int height, Vertex& v){
 
 
 void SceneManager::init(){
-    models.push_back(new Light(Light::light_type::ambient, {0.f, 0.f, 0.f}, {0.2, 0.2, 0.2}));
-    models.push_back(new Light(Light::light_type::point, {0, 0, 1}, {.9f, .9f, .9f}, {0.f, 0.f, -40.f}, 1.f));
+    models.push_back(new Light(Light::light_type::ambient, {0.2, 0.2, 0.2}));
+//    models.push_back(new Light(Light::light_type::point, {0, 0, 1}, {.9f, .9f, .9f}, {0.f, 0.f, -40.f}, 1.f));
 //    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
     pixel_shader = std::make_shared<ColorShader>();
     vertex_shader = std::make_shared<VertexShader>();
@@ -34,7 +34,10 @@ void SceneManager::render_all(){
         std::fill(vec.begin(), vec.end(), std::numeric_limits<float>::max());
 
     for (auto& model: models){
-        if (!model->isObject()) continue;
+        if (!model->isObject()){
+            Light* l = dynamic_cast<Light*>(model);
+            if (l->t == Light::light_type::ambient) continue;
+        }
         if (model->has_texture)
             pixel_shader = std::make_shared<TextureShader>(model->texture);
         else
@@ -78,10 +81,15 @@ void SceneManager::rasterize(Model& model){
     auto viewMatrix = cam.viewMatrix();
     auto projMatrix = cam.projectionMatrix;
 
-    for (int i = 0; i < model.index_buffer.size() / 3; i++){
-        auto a = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i]], rotation_matrix, objToWorld, cam);
-        auto b = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 1]], rotation_matrix, objToWorld, cam);
-        auto c = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 2]], rotation_matrix, objToWorld, cam);
+//    for (int i = 0; i < model.index_buffer.size() / 3; i++){
+    for (auto& face: model.faces){
+
+//        auto a = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i]], rotation_matrix, objToWorld, cam);
+//        auto b = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 1]], rotation_matrix, objToWorld, cam);
+//        auto c = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 2]], rotation_matrix, objToWorld, cam);
+        auto a = vertex_shader->shade(face.a, rotation_matrix, objToWorld, cam);
+        auto b = vertex_shader->shade(face.b, rotation_matrix, objToWorld, cam);
+        auto c = vertex_shader->shade(face.c, rotation_matrix, objToWorld, cam);
 
 //        if (backfaceCulling(a, b, c))
 //            continue;
@@ -243,10 +251,11 @@ void SceneManager::uploadModel(std::string name, uint32_t& uid){
 
     const std::map<std::string, std::string> files = {
         {"Куб", "C:\\raster\\ui_mode\\cube.obj"},
-        {"Сфера", "C:\\raster\\ui_mode\\sphere.obj"},
+        {"Сфера", "C:\\raster\\ui_mode\\icosphere.obj"},
         {"Пирамида", "C:\\raster\\ui_mode\\pyramyd.obj"},
-        {"Конус", "C:\\raster\\ui_mode\\conus.obj"},
-        {"Плоскость", "C:\\raster\\ui_mode\\plane.obj"}
+        {"Конус", "C:\\raster\\ui_mode\\conus_.obj"},
+        {"Плоскость", "C:\\raster\\ui_mode\\plane.obj"},
+        {"Цилиндр", "C:\\raster\\ui_mode\\cylinder_.obj"}
     };
 
     if (!files.count(name))
@@ -254,6 +263,23 @@ void SceneManager::uploadModel(std::string name, uint32_t& uid){
 
     uid = models_index++;
     models.push_back(new Model(files.at(name), uid));
+
+    render_all();
+}
+
+void SceneManager::uploadLight(std::string name, uint32_t &uid){
+    const std::map<std::string, std::string> files = {
+        {"Точечный источник", "C:\\raster\\ui_mode\\icosphere.obj"},
+    };
+
+    if (!files.count(name))
+        return;
+
+    uid = models_index++;
+    if (name == "Точечный источник"){
+        models.push_back(new Light(Light::light_type::point, {1.f, 1.f, 1.f}, {0.f, 6.f, 0.f},
+                                   1, {0.f, 0.f, 0.f}, files.at(name), uid, {0.2f, 0.2f, 0.2f}));
+    }
 
     render_all();
 }

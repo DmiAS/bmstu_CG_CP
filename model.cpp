@@ -4,7 +4,37 @@
 #include <QtDebug>
 
 const float eps_intersect = std::numeric_limits<float>::epsilon();
-Model::Model(const std::string& fileName, uint32_t uid_){
+
+bool equal(const Vec3f& a, const Vec3f& b){
+    auto c = a - b;
+    return fabs(c.x) < eps_intersect && fabs(c.y) < eps_intersect && fabs(c.z) < eps_intersect;
+}
+
+using Normals = std::vector<Vec3f>;
+bool isUniqe(const Normals& normals, const Vec3f& n){
+    for (auto& normal: normals)
+        if (equal(n, normal)) return false;
+    return true;
+}
+
+Vec3f smoothNormal(const Vec3f& p, std::vector<Face>& faces){
+    int cnt = 0;
+    Vec3f n = {0.f, 0.f, 0.f};
+    Normals normals;
+    for (auto& face: faces){
+        if ((equal(p, face.a.pos) || equal(p, face.b.pos) || equal(p, face.c.pos))){
+            n += face.normal;
+            cnt++;
+            normals.push_back(face.normal);
+            qDebug() << "c = " << cnt;
+        }
+    }
+
+    return (n / cnt).normalize();
+}
+
+Model::Model(const std::string& fileName, uint32_t uid_, const Vec3f& scale, const Vec3f& position){
+    if (fileName == "")  return;
     uid = uid_;
     objl::Loader loader;
     bool l = loader.LoadFile(fileName);
@@ -26,9 +56,34 @@ Model::Model(const std::string& fileName, uint32_t uid_){
             index_buffer.push_back(curMesh.Indices[j]);
     }
 
-    texture.load("C:\\raster\\ui_mode\\bricks.jpg");
+    // create faces
+    for (int i = 0; i < this->index_buffer.size() / 3; i++){
+        faces.push_back(
+        {this->vertex_buffer[this->index_buffer[3 * i]],
+                    this->vertex_buffer[this->index_buffer[3 * i + 1]],
+                    this->vertex_buffer[this->index_buffer[3 * i + 2]]});
+        auto& f = faces.back();
+        f.normal = Vec3f::cross(f.b.pos - f.a.pos, f.c.pos - f.a.pos);
+    }
 
-    m_boundingBall = getBoundingBall();
+//    for (auto& face: faces){
+//        face.a.normal = smoothNormal(face.a.pos, faces);
+//        face.b.normal = smoothNormal(face.b.pos, faces);
+//        face.c.normal = smoothNormal(face.c.pos, faces);
+//    }
+
+    qDebug() << "size = " << faces.size();
+    texture.load("C:\\raster\\ui_mode\\bricks.jpg");
+    scale_x = scale.x;
+    scale_y = scale.y;
+    scale_z = scale.z;
+
+    shift_x = position.x;
+    shift_y = position.y;
+    shift_z = position.z;
+
+//    m_boundingBall = getBoundingBall();
+
 }
 
 Vertex transform_position(const Vertex& v, const Mat4x4f& objToWorld, const Mat4x4f& rotationMatrix){
@@ -42,11 +97,10 @@ Vertex transform_position(const Vertex& v, const Mat4x4f& objToWorld, const Mat4
     return out;
 }
 
-
-bool Model::triangleIntersect(int index, const Ray &ray, const Mat4x4f &objToWorld, const Mat4x4f &rotMatrix, InterSectionData &data){
-    auto p0 = transform_position(vertex_buffer[index_buffer[3 * index]], objToWorld, rotMatrix);
-    auto p1 = transform_position(vertex_buffer[index_buffer[3 * index + 1]], objToWorld, rotMatrix);
-    auto p2 = transform_position(vertex_buffer[index_buffer[3 * index + 2]], objToWorld, rotMatrix);
+bool Model::triangleIntersect(const Face& face, const Ray &ray, const Mat4x4f &objToWorld, const Mat4x4f &rotMatrix, InterSectionData &data){
+    auto p0 = transform_position(face.a, objToWorld, rotMatrix);
+    auto p1 = transform_position(face.b, objToWorld, rotMatrix);
+    auto p2 = transform_position(face.c, objToWorld, rotMatrix);
 
     auto edge1 = p1.pos - p0.pos;
     auto edge2 = p2.pos - p0.pos;
@@ -77,14 +131,46 @@ bool Model::triangleIntersect(int index, const Ray &ray, const Mat4x4f &objToWor
     float t = f * Vec3f::dot(edge2, q);
 
     if (t > eps_intersect){
-        auto bary = Vec3f{1 - u - v, u, v};
-        data.normal = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, bary).normalize();
+        auto bary = Vec3f{u, v, 1 - u - v};
+        auto p = ray.origin + ray.direction * t;
+        auto myBary = toBarycentric(p0.pos, p1.pos, p2.pos, p);
+        data.normal = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, myBary).normalize();
         data.t = t;
         intersected = true;
-        data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, bary);
+        data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, myBary);
+//        data.color =data.normal;
     }
 
-    return intersected;
+//    Vec3f v0v1 = p1.pos - p0.pos;
+//    Vec3f v0v2 = p2.pos - p0.pos;
+//    Vec3f pvec = Vec3f::cross(ray.direction, v0v2);
+//    float det = Vec3f::dot(v0v1, pvec);
+//    if (fabs(det) < eps_intersect) return false;
+
+//    float invDet = 1 / det;
+
+//    Vec3f tvec = ray.origin - p0.pos;
+//    float u = Vec3f::dot(tvec, pvec) * invDet;
+//    if (u < 0 || u > 1) return false;
+
+//    Vec3f qvec = Vec3f::cross(tvec, v0v1);
+//    float v = Vec3f::dot(ray.direction, qvec) * invDet;
+//    if (v < 0 || u + v > 1) return false;
+
+//    float t = Vec3f::dot(v0v2, qvec) * invDet;
+
+//    Vec3f bary = {u, v, 1 - u - v};
+//    Vec3f normal = Vec3f::cross(v0v1, v0v2);
+////    data.normal = normal.hadamard(bary).normalize();
+//    data.normal = normal.normalize();
+////    data.normal = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, bary).normalize();
+//    data.t = t;
+//    intersected = true;
+//    data.color = p0.color;
+//    data.color = {1.f, 0.f, 0.f};
+
+//    data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, bary);
+    return true;
 }
 
 bool Model::intersect(const Ray &ray, InterSectionData &data){
@@ -97,9 +183,9 @@ bool Model::intersect(const Ray &ray, InterSectionData &data){
     auto objToWorld = this->objToWorld();
     auto rotMatrix = this->rotation_matrix;
     int cnt = 0;
-    for (int i = 0; i < index_buffer.size() / 3; i++){
+    for (auto& face: faces){
         InterSectionData d;
-        if (triangleIntersect(i, ray, objToWorld, rotMatrix, d) && d.t < model_dist){
+        if (triangleIntersect(face, ray, objToWorld, rotMatrix, d) && d.t < model_dist){
             model_dist = d.t;
             data = d;
             intersected = true;
@@ -121,10 +207,10 @@ std::pair<data_intersect, data_intersect> Model::interSect(const Vec3f& origin, 
     auto objToWorld = this->objToWorld();
     auto rotMatrix = this->rotation_matrix;
     int cnt = 0;
-    for (int i = 0; i < index_buffer.size() / 3; i++){
-        auto p0 = transform_position(vertex_buffer[index_buffer[3 * i]], objToWorld, rotMatrix);
-        auto p1 = transform_position(vertex_buffer[index_buffer[3 * i + 1]], objToWorld, rotMatrix);
-        auto p2 = transform_position(vertex_buffer[index_buffer[3 * i + 2]], objToWorld, rotMatrix);
+    for (auto& face: faces){
+        auto p0 = transform_position(face.a, objToWorld, rotMatrix);
+        auto p1 = transform_position(face.b, objToWorld, rotMatrix);
+        auto p2 = transform_position(face.c, objToWorld, rotMatrix);
 
         auto edge1 = p1.pos - p0.pos;
         auto edge2 = p2.pos - p0.pos;

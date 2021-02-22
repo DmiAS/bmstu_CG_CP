@@ -47,6 +47,8 @@ public:
 
     void uploadModel(std::string name, uint32_t& uid);
 
+    void uploadLight(std::string name, uint32_t& uid);
+
     void removeModel();
 
     void setCurrentModel(uint32_t uid);

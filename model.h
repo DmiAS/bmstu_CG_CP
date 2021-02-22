@@ -16,13 +16,19 @@ const float max_angle = 360, rot_step_x = 15, rot_step_y = 15, rot_step_z = 15;
 
 struct InterSectionData;
 
+struct Face{
+    Vertex a, b, c;
+    Vec3f normal;
+};
+
 class Model{
 
 public:
 
     Model() = default;
 
-    Model(const std::string& fileName, uint32_t uid_);
+    Model(const std::string& fileName, uint32_t uid_, const Vec3f& scale = {1.f, 1.f, 1.f},
+          const Vec3f& position = {0.f, 0.f, 0.f});
 
     void rotateX(float angle){
         auto step = wrap_angle(angle_x, angle, rot_step_x);
@@ -47,17 +53,17 @@ public:
 //        transform_matrix = Mat4x4f::RotationZ(angle) * transform_matrix;
     }
 
-    void shiftX(float dist){
+    virtual void shiftX(float dist){
         shift_x += dist;
 //        transform_matrix = Mat4x4f::Translation(dist, 0, 0) * transform_matrix;
     }
 
-    void shiftY(float dist){
+    virtual void shiftY(float dist){
         shift_y += dist;
 //        transform_matrix = Mat4x4f::Translation(0, dist, 0) * transform_matrix;
     }
 
-    void shiftZ(float dist){
+    virtual void shiftZ(float dist){
         shift_z += dist;
 //        transform_matrix = Mat4x4f::Translation(0, 0, dist) * transform_matrix;
     }
@@ -84,8 +90,13 @@ public:
     }
 
     void setColor(const Vec3f& color){
-        for (auto& v: vertex_buffer)
-            v.color = color;
+//        for (auto& v: vertex_buffer)
+//            v.color = color;
+        for (auto& f: faces){
+            f.a.color = color;
+            f.b.color = color;
+            f.c.color = color;
+        }
         this->color = color;
     }
 
@@ -110,7 +121,7 @@ private:
     }
 
 
-    bool triangleIntersect(int index, const Ray& ray,
+    bool triangleIntersect(const Face& face, const Ray& ray,
                            const Mat4x4f& objToWorld, const Mat4x4f& rotMatrix,
                            InterSectionData& data);
 
@@ -118,6 +129,7 @@ private:
 public:
     std::vector<uint32_t> index_buffer;
     std::vector<Vertex> vertex_buffer;
+    std::vector<Face> faces;
     Mat4x4f rotation_matrix = Mat4x4f::Identity();
     Mat4x4f scale_matrix;
     QImage texture;

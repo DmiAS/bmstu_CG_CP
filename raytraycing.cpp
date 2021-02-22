@@ -37,9 +37,9 @@ Vec3f RayThread::computeLightning(const Vec3f &p, const Vec3f &n, const Vec3f &d
     Vec3f i;
     Vec3f L;
     specular = 0.6f;
-    float di = 0.2f;
+    float di = 0.5f;
 
-    Vec3f ambient, diffuse, spec;
+    Vec3f ambient, diffuse = {0.f, 0.f, 0.f}, spec = {0.f, 0.f, 0.f};
 
     for (auto &model: models){
         if (model->isObject()) continue;
@@ -63,6 +63,12 @@ Vec3f RayThread::computeLightning(const Vec3f &p, const Vec3f &n, const Vec3f &d
             }
 
             diffuse = (light->color_intensity * std::max(0.f, Vec3f::dot(n, L))) * di;
+
+            Vec3f shadow_orig = Vec3f::dot(L, n) < 0 ? p - n*1e-3 : p + n*1e-3; // checking if the point lies in the shadow of the lights[i]
+            InterSectionData tmpData;
+            if (sceneIntersect(Ray(shadow_orig, L), tmpData, 1e-3, t_max) && (tmpData.point - shadow_orig).len() < L.len())
+                continue;
+
             auto reflectDir = reflect(-L, n).normalize();
             auto tmp = Vec3f::dot(-direction, reflectDir);
             float sp = std::pow(std::fmax(tmp, 0.f), 80);
@@ -70,10 +76,6 @@ Vec3f RayThread::computeLightning(const Vec3f &p, const Vec3f &n, const Vec3f &d
 //            InterSectionData
 //            auto res = closestIntersection(p, L, 1e-3, t_max);
 //            if (fabs(res.t) < eps_float)
-//                continue;
-//            Vec3f shadow_orig = Vec3f::dot(L, n) < 0 ? p - n*1e-3 : p + n*1e-3; // checking if the point lies in the shadow of the lights[i]
-//            InterSectionData tmpData;
-//            if (sceneIntersect(Ray(shadow_orig, L), tmpData, 1e-3, t_max) && (tmpData.point - shadow_orig).len() < L.len())
 //                continue;
 
 //            i += light->color_intensity * std::max(0.f, Vec3f::dot(n, -L));
@@ -146,6 +148,7 @@ bool RayThread::sceneIntersect(const Ray &ray, InterSectionData &data, float t_m
     float closeset_t = std::numeric_limits<float>::infinity();
     bool intersected = false;
     for (auto& model: models){
+        if (!model->isObject()) continue;
         InterSectionData d;
         if (model->intersect(ray, d) && d.t > t_min && d.t < t_max && d.t < closeset_t){
             closeset_t = d.t;
