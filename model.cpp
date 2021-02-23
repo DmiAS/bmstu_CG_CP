@@ -108,6 +108,11 @@ bool Model::triangleIntersect(const Face& face, const Ray &ray, const Mat4x4f &o
     auto h = Vec3f::cross(ray.direction, edge2);
     auto a = Vec3f::dot(edge1, h);
 
+    if (Vec3f::dot(Vec3f::cross(edge1, edge2), ray.direction) > 0){
+//        qDebug() << "false";
+        return false;
+    }
+
     bool intersected = false;
 
     if (fabs(a) < eps_intersect)
@@ -130,7 +135,7 @@ bool Model::triangleIntersect(const Face& face, const Ray &ray, const Mat4x4f &o
 
     float t = f * Vec3f::dot(edge2, q);
 
-    if (t > eps_intersect){
+    if (t > 0){
         auto bary = Vec3f{1 - u - v, u, v};
         data.point = ray.origin + ray.direction * t;
 //        auto myBary = toBarycentric(p0.pos, p1.pos, p2.pos, p);
@@ -173,12 +178,8 @@ bool Model::intersect(const Ray &ray, InterSectionData &data){
 
     bool intersected = false;
 
-//    if (!m_boundingBall.intersect(ray)) return intersected;
-
-//    qDebug() << "face new";
     auto objToWorld = this->objToWorld();
     auto rotMatrix = this->rotation_matrix;
-    int cnt = 0;
     InterSectionData d;
     for (auto& face: faces){
         if (triangleIntersect(face, ray, objToWorld, rotMatrix, d) && d.t < model_dist){
