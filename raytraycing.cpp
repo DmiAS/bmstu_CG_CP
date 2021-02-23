@@ -20,67 +20,67 @@ Vec3f refract(const Vec3f &I, const Vec3f &N, const float eta_t, const float eta
     return k<0 ? Vec3f(1,0,0) : I*eta + N*(eta*cosi - sqrtf(k)); // k<0 = total reflection, no ray to refract. I refract it anyways, this has no physical meaning
 }
 
-Vec3f RayThread::computeLightning(const Vec3f &p, const Vec3f &n, const Vec3f &direction, float specular, int depth){
-    Vec3f i;
-    Vec3f lightDir;
-    specular = 0.6f;
-    float di = 0.3f;
+//Vec3f RayThread::computeLightning(const Vec3f &p, const Vec3f &n, const Vec3f &direction, float specular, int depth){
+//    Vec3f i;
+//    Vec3f lightDir;
+//    specular = 0.6f;
+//    float di = 0.3f;
 
-    float distance = 0.f;
+//    float distance = 0.f;
 
-    Vec3f ambient, diffuse = {0.f, 0.f, 0.f}, spec = {0.f, 0.f, 0.f};
+//    Vec3f ambient, diffuse = {0.f, 0.f, 0.f}, spec = {0.f, 0.f, 0.f};
 
-//    Vec3f reflect_dir = reflect(-direction, n).normalize();
+////    Vec3f reflect_dir = reflect(-direction, n).normalize();
 
-//    Vec3f reflect_orig = Vec3f::dot(reflect_dir, n) < 0 ? p - n * 1e-3 : p + n * 1e-3;
-//    Vec3f reflect_color = cast_ray(Ray(reflect_orig, reflect_dir), depth + 1);
+////    Vec3f reflect_orig = Vec3f::dot(reflect_dir, n) < 0 ? p - n * 1e-3 : p + n * 1e-3;
+////    Vec3f reflect_color = cast_ray(Ray(reflect_orig, reflect_dir), depth + 1);
 
-    Vec3f refract_dir = refract(direction, n, 10).normalize();
-    Vec3f refract_orig = Vec3f::dot(refract_dir, n) < 0 ? p - n * 1e-3 : p + n * 1e3;
-    Vec3f refract_color = cast_ray(Ray(refract_orig, refract_dir), depth + 1);
+////    Vec3f refract_dir = refract(direction, n, 10).normalize();
+////    Vec3f refract_orig = Vec3f::dot(refract_dir, n) < 0 ? p - n * 1e-3 : p + n * 1e3;
+////    Vec3f refract_color = cast_ray(Ray(refract_orig, refract_dir), depth + 1);
 
-    for (auto &model: models){
-        if (model->isObject()) continue;
-        Light* light = dynamic_cast<Light*>(model);
-        if (light->t == Light::light_type::ambient)
-//            i += light->color_intensity;
-            ambient = light->color_intensity;
-        else{
-            float t_max;
-            if (light->t == Light::light_type::point){
-//                L = Vec3f{light->position.x - p.x,
-//                     light->position.y - p.y,
-//                     light->position.z - p.z,
-//                    }.normalize();
-//                t_max = 1;
-                lightDir = (light->position - p);
-                distance = lightDir.len();
-                lightDir = lightDir.normalize();
-//                L = (p - light->position).normalize();
-            } else{
-                lightDir = light->direction;
-                t_max = std::numeric_limits<float>::max();
-            }
+//    for (auto &model: models){
+//        if (model->isObject()) continue;
+//        Light* light = dynamic_cast<Light*>(model);
+//        if (light->t == Light::light_type::ambient)
+////            i += light->color_intensity;
+//            ambient = light->color_intensity;
+//        else{
+//            float t_max;
+//            if (light->t == Light::light_type::point){
+////                L = Vec3f{light->position.x - p.x,
+////                     light->position.y - p.y,
+////                     light->position.z - p.z,
+////                    }.normalize();
+////                t_max = 1;
+//                lightDir = (light->position - p);
+//                distance = lightDir.len();
+//                lightDir = lightDir.normalize();
+////                L = (p - light->position).normalize();
+//            } else{
+//                lightDir = light->direction;
+//                t_max = std::numeric_limits<float>::max();
+//            }
 
-            auto tDot = Vec3f::dot(lightDir, n);
+//            auto tDot = Vec3f::dot(lightDir, n);
 
-            Vec3f shadow_orig = tDot < 0 ? p - n*1e-3 : p + n*1e-3; // checking if the point lies in the shadow of the lights[i]
-            InterSectionData tmpData;
-            if (sceneIntersect(Ray(shadow_orig, lightDir), tmpData))
-                if ((tmpData.point - shadow_orig).len() < distance)
-                    continue;
+//            Vec3f shadow_orig = tDot < 0 ? p - n*1e-3 : p + n*1e-3; // checking if the point lies in the shadow of the lights[i]
+//            InterSectionData tmpData;
+//            if (sceneIntersect(Ray(shadow_orig, lightDir), tmpData))
+//                if ((tmpData.point - shadow_orig).len() < distance)
+//                    continue;
 
-            diffuse = (light->color_intensity * std::max(0.f, Vec3f::dot(n, lightDir)) * di);
-            auto r = reflect(lightDir, n);
-            auto r_dot = Vec3f::dot(r, -direction);
-            auto power = powf(std::max(0.f, r_dot), 20);
-            spec = light->color_intensity * power * specular;
-        }
+//            diffuse = (light->color_intensity * std::max(0.f, Vec3f::dot(n, lightDir)) * di);
+//            auto r = reflect(lightDir, n);
+//            auto r_dot = Vec3f::dot(r, -direction);
+//            auto power = powf(std::max(0.f, r_dot), 20);
+//            spec = light->color_intensity * power * specular;
+//        }
 
-    }
+//    }
 
-    return (ambient + diffuse + spec + refract_color).saturate();
-}
+//    return (ambient + diffuse + spec + refract_color).saturate();
+//}
 
 //Vec3f reflectRay(const Vec3f& r, const Vec3f& n){
 //    return (n * 2 * Vec3f::dot(n, r)) - r;
@@ -118,14 +118,14 @@ Vec3f RayThread::computeLightning(const Vec3f &p, const Vec3f &n, const Vec3f &d
 //}
 
 bool RayThread::sceneIntersect(const Ray &ray, InterSectionData &data, float t_max){
-    float closeset_t = std::numeric_limits<float>::infinity();
+    float closeset_t = std::numeric_limits<float>::max();
     bool intersected = false;
     for (auto& model: models){
         if (!model->isObject()) continue;
         if (model->intersect(ray, data) && data.t < closeset_t){
             closeset_t = data.t;
             intersected = true;
-            data.point = ray.origin + ray.direction * data.t;
+//            data.point = ray.origin + ray.direction * data.t;
             data.model = *model;
         }
     }
@@ -138,19 +138,15 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
     float t_min = 1e-3, t_max = std::numeric_limits<float>::max();
     InterSectionData data;
     if (depth > 3 || !sceneIntersect(ray, data))
-        return Vec3f{0, 0, 0};
+        return Vec3f{0.f, 0, 0};
 
     float specular = 0.6f;
     float di = 0.3f;
 
     float distance = 0.f;
 
-    float occlusion = 0.005f;
-    Vec3f ambient, diffuse = {0.f, 0.f, 0.f}, spec = {0.f, 0.f, 0.f}, lightDir = {0.f, 0.f, 0.f};
-
-    Vec3f reflect_dir = reflect(ray.direction, data.normal).normalize();
-    Vec3f reflect_orig = Vec3f::dot(reflect_dir, data.normal) < 0 ? data.point - data.normal * occlusion : data.point + data.normal * occlusion;
-    Vec3f reflect_color = cast_ray(Ray(reflect_orig, reflect_dir), depth + 1);
+    float occlusion = 1e-2f;
+    Vec3f ambient, diffuse = {0.f, 0.f, 0.f}, spec = {0.f, 0.f, 0.f}, lightDir = {0.f, 0.f, 0.f}, reflect_color = {0.f, 0.f, 0.f};
 
 //    Vec3f refract_dir = refract(ray.direction, data.normal, 10).normalize();
 //    Vec3f refract_orig = Vec3f::dot(refract_dir, data.normal) < 0 ? data.point - data.normal * 1e-3 : data.point + data.normal * 1e3;
@@ -185,6 +181,10 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
                 if ((tmpData.point - shadow_orig).len() < distance)
                     continue;
 
+            Vec3f reflect_dir = reflect(ray.direction, data.normal).normalize();
+            Vec3f reflect_orig = Vec3f::dot(reflect_dir, data.normal) < 0 ? data.point - data.normal * 1e-3f : data.point + data.normal * 1e-3f;
+            reflect_color = cast_ray(Ray(reflect_orig, reflect_dir), depth + 1);
+
             diffuse = (light->color_intensity * std::max(0.f, Vec3f::dot(data.normal, lightDir)) * di);
             auto r = reflect(lightDir, data.normal);
             auto r_dot = Vec3f::dot(r, ray.direction);
@@ -195,7 +195,7 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
     }
 
 //    auto local_color = data.color.hadamard(computeLightning(data.point, data.normal, -ray.direction, data.model.specular)).saturate();
-    auto local_color = data.color.hadamard(ambient + diffuse + spec).saturate();
+    auto local_color = data.color.hadamard(ambient + diffuse + spec + reflect_color * 0.5f).saturate();
     return local_color;
 }
 
