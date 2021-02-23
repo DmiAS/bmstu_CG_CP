@@ -251,7 +251,7 @@ void SceneManager::uploadModel(std::string name, uint32_t& uid){
 
     const std::map<std::string, std::string> files = {
         {"Куб", "C:\\raster\\ui_mode\\cube.obj"},
-        {"Сфера", "C:\\raster\\ui_mode\\icosphere.obj"},
+        {"Сфера", "C:\\raster\\ui_mode\\less_sphere.obj"},
         {"Пирамида", "C:\\raster\\ui_mode\\pyramyd.obj"},
         {"Конус", "C:\\raster\\ui_mode\\try.obj"},
         {"Плоскость", "C:\\raster\\ui_mode\\plane.obj"},

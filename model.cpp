@@ -155,9 +155,14 @@ bool Model::triangleIntersect(const Face& face, const Ray &ray, const Mat4x4f &o
                     green/ 255.f ,
                     blue /255.f};
 
-        }else
+        }else{
             data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, bary);
-//            data.color = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, bary).normalize();
+//            data.color = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, bary);
+//            data.color.x += 1;
+//            data.color.y += 1;
+//            data.color.z += 1;
+//            data.color /= 2;
+        }
 //        data.color =data.normal;
     }
     return intersected;

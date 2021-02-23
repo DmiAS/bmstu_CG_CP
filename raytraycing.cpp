@@ -140,7 +140,7 @@ bool RayThread::sceneIntersect(const Ray &ray, InterSectionData &data, float t_m
 Vec3f RayThread::cast_ray(const Ray &ray, int depth){
     float t_min = 1e-3, t_max = std::numeric_limits<float>::max();
     InterSectionData data;
-    if (depth > 6 || !sceneIntersect(ray, data))
+    if (depth > 2 || !sceneIntersect(ray, data))
         return Vec3f{0.f, 0, 0};
 
 //    if (depth > 0){
@@ -158,13 +158,13 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
     float occlusion = 1e-4f;
     Vec3f ambient, diffuse = {0.f, 0.f, 0.f}, spec = {0.f, 0.f, 0.f}, lightDir = {0.f, 0.f, 0.f}, reflect_color = {0.f, 0.f, 0.f};
 
-//    Vec3f refract_dir = refract(ray.direction, data.normal, 10).normalize();
-//    Vec3f refract_orig = Vec3f::dot(refract_dir, data.normal) < 0 ? data.point - data.normal * 1e-3 : data.point + data.normal * 1e3;
-//    Vec3f refract_color = cast_ray(Ray(refract_orig, refract_dir), depth + 1);
+    Vec3f refract_dir = refract(ray.direction, data.normal, 125.f).normalize();
+    Vec3f refract_orig = Vec3f::dot(refract_dir, data.normal) < 0 ? data.point - data.normal * 1e-3f : data.point + data.normal * 1e3f;
+    Vec3f refract_color = cast_ray(Ray(refract_orig, refract_dir), depth + 1);
 
-    Vec3f reflect_dir = reflect(ray.direction, data.normal).normalize();
-    Vec3f reflect_orig = Vec3f::dot(reflect_dir, data.normal) < 0 ? data.point - data.normal * 1e-3f : data.point + data.normal * 1e-3f;
-    reflect_color = cast_ray(Ray(reflect_orig, reflect_dir), depth + 1);
+//    Vec3f reflect_dir = reflect(ray.direction, data.normal).normalize();
+//    Vec3f reflect_orig = Vec3f::dot(reflect_dir, data.normal) < 0 ? data.point - data.normal * 1e-3f : data.point + data.normal * 1e-3f;
+//    reflect_color = cast_ray(Ray(reflect_orig, reflect_dir), depth + 1);
 
 
     for (auto &model: models){
@@ -210,7 +210,8 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
     }
 
 //    auto local_color = data.color.hadamard(computeLightning(data.point, data.normal, -ray.direction, data.model.specular)).saturate();
-    auto local_color = data.color.hadamard(ambient + diffuse + spec + reflect_color).saturate();
+    auto local_color = data.color.hadamard(ambient + diffuse + spec + reflect_color * 0.0f + refract_color).saturate();
+//    auto local_color = data.color.hadamard(ambient).saturate();
     return local_color;
 }
 
