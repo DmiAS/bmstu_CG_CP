@@ -157,6 +157,7 @@ bool Model::triangleIntersect(const Face& face, const Ray &ray, const Mat4x4f &o
 
         }else
             data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, bary);
+//            data.color = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, bary).normalize();
 //        data.color =data.normal;
     }
     return intersected;
@@ -175,7 +176,6 @@ bool Model::intersect(const Ray &ray, InterSectionData &data){
     int cnt = 0;
     InterSectionData d;
     for (auto& face: faces){
-//        InterSectionData d;
         if (triangleIntersect(face, ray, objToWorld, rotMatrix, d) && d.t < model_dist){
             model_dist = d.t;
             data = d;

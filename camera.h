@@ -9,7 +9,7 @@ const float eps_cam = 1e-5;
 class Camera{
 public:
     Camera(float width, float height, Vec3f pos = {0, 0, -5}, Vec3f up = {0, 1, 0}, Vec3f direction = {0, 0, 1},
-           float fov = 45, float zn_ = 0.1f, float zf_ = 1000.f): position{pos}, up{up}, direction{direction},
+           float fov = 50, float zn_ = 0.1f, float zf_ = 1000.f): position{pos}, up{up}, direction{direction},
         fov{fov}, zn{zn_}, zf{zf_}{
 
         aspect_ratio = width / height;
@@ -44,9 +44,12 @@ public:
 
     void rotateY(float angle){
         // поворот относительно вектора up
-        Vec3f axis{0, 1, 0};
-        direction = rotateQautr(axis, direction, angle);
-        up = rotateQautr(axis, up, angle);
+//        Vec3f axis{0, 1, 0};
+//        direction = rotateQautr(axis, direction, angle);
+//        up = rotateQautr(axis, up, angle);
+        direction = direction * Mat3x3f::RotationY(angle);
+        up = up * Mat3x3f::RotationY(angle);
+//        qDebug() << up.x << up.y << up.z;
     }
 
 
@@ -75,7 +78,7 @@ public:
     Vec3f position;
     Vec3f up;
     Vec3f direction;
-    float fov = 45;
+    float fov;
     float zn;
     float zf;
     float aspect_ratio;

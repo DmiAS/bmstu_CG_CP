@@ -253,9 +253,9 @@ void SceneManager::uploadModel(std::string name, uint32_t& uid){
         {"Куб", "C:\\raster\\ui_mode\\cube.obj"},
         {"Сфера", "C:\\raster\\ui_mode\\icosphere.obj"},
         {"Пирамида", "C:\\raster\\ui_mode\\pyramyd.obj"},
-        {"Конус", "C:\\raster\\ui_mode\\conus.obj"},
+        {"Конус", "C:\\raster\\ui_mode\\try.obj"},
         {"Плоскость", "C:\\raster\\ui_mode\\plane.obj"},
-        {"Цилиндр", "C:\\raster\\ui_mode\\cylinder.obj"}
+        {"Цилиндр", "C:\\raster\\ui_mode\\cyl.obj"}
     };
 
     if (!files.count(name))

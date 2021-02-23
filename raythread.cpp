@@ -28,7 +28,7 @@ void RayThread::run()
 //            auto d = canvasToViewPort(x, y);
 //            qDebug() << height / 2 << d.x << d.y << d.z;
 //            return;
-//            auto m = toWorld(x, y).normalize();
+//            auto d = toWorld(x, y).normalize();
 //            qDebug() << "direction 2 = " << m.x << m.y << m.z;
 //            auto viewPlanePoint = viewPlaneBottomLeftPoint + xIncVector * (float)x + yIncVector * (float)y;
 //            auto castRay = (viewPlanePoint - cam->position).normalize();
