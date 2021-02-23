@@ -16,16 +16,22 @@ float calcBar(Vec3f a, Vec3f b, Vec3f p){
     return (a.y - b.y) * p.x + (b.x - a.x) * p.y + a.x * b.y - b.x * a.y;
 }
 
+const float eps_bary = std::numeric_limits<float>::epsilon();
+
 Vec3f toBarycentric(Vec3f a, Vec3f b, Vec3f c, Vec3f p){
 
 
-    float numA = calcBar(b, c, p);
-    float numB = calcBar(c, a, p);
+    float numA = calcBar(c, b, p);
+    float numB = calcBar(a, c, p);
     float numC = calcBar(a, b, p);
 
-    float denumA = calcBar(b, c, a);
-    float denumB = calcBar(c, a, b);
+    float denumA = calcBar(c, b, a);
+    float denumB = calcBar(a, c, b);
     float denumC = calcBar(a, b, c);
 
-    return {numA / denumA, numB / denumB, numC / denumC};
+    auto f = numA / denumA;
+    auto s = numB / denumB;
+    auto t = numC / denumC;
+
+    return {f, s, t};
 }

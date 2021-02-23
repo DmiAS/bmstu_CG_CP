@@ -37,7 +37,11 @@ MainWindow::MainWindow(QWidget *parent)
         "Плоскость"
     };
 
+    const QStringList lights = {"Точечный источник", "Направленный"};
+
     ui->objects_list->addItems(textures);
+
+    ui->add_light_list->addItems(lights);
 
     auto stringList = new QStringList();
     model = new QStringListModel(*stringList);
@@ -406,7 +410,30 @@ void MainWindow::on_add_texture_button_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Выберите текстуру" );
     QImage img;
-    img.load(fileName);
+    qDebug() << img.load(fileName);
     name_data.at(prev_selected).img = img;
     manager.setTexture(img);
+}
+
+void MainWindow::on_add_light_button_clicked()
+{
+    auto text = ui->add_light_list->currentText();
+    auto updated_text = text;
+    if (!name_data.count(text))
+        name_data.insert({text, UI_data{}});
+    else{
+        auto val = ++name_data.at(text).amount;
+        updated_text += QString("%1").arg(val);
+        name_data.insert({updated_text, UI_data{}});
+    }
+    uint32_t uid = 0;
+    manager.uploadLight(text.toStdString(), uid);
+
+    if (uid){
+        model->insertRow(model->rowCount());
+        QModelIndex index = model->index(model->rowCount()-1);
+        model->setData(index, updated_text);
+        text_uid.insert({updated_text, uid});
+    }
+    return;
 }

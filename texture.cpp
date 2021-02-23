@@ -16,8 +16,11 @@ Vec3f TextureShader::shade(const Vertex &a, const Vertex &b, const Vertex &c, co
     float pixel_u = interPolateCord(a.u , b.u, c.u, bary) * invZ;
     float pixel_v = interPolateCord(a.v, b.v, c.v, bary) * invZ;
 
-    int x = std::floor(pixel_u * (texture.width() - 1) );
+    int x = std::floor(pixel_u * (texture.width()) - 1);
     int y = std::floor(pixel_v * (texture.height() - 1));
+
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
 
 
     auto color = texture.pixelColor(x, y);

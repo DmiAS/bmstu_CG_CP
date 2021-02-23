@@ -79,6 +79,8 @@ private slots:
 
     void on_add_texture_button_clicked();
 
+    void on_add_light_button_clicked();
+
 private:
     Ui::MainWindow *ui;
     QStringListModel *model;

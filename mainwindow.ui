@@ -352,6 +352,9 @@
       <height>30</height>
      </rect>
     </property>
+    <property name="minimum">
+     <double>-10.000000000000000</double>
+    </property>
     <property name="singleStep">
      <double>0.100000000000000</double>
     </property>
@@ -364,6 +367,9 @@
       <width>77</width>
       <height>30</height>
      </rect>
+    </property>
+    <property name="minimum">
+     <double>-10.000000000000000</double>
     </property>
     <property name="singleStep">
      <double>0.100000000000000</double>
@@ -466,6 +472,9 @@
       <width>77</width>
       <height>30</height>
      </rect>
+    </property>
+    <property name="minimum">
+     <double>-10.000000000000000</double>
     </property>
     <property name="singleStep">
      <double>0.100000000000000</double>

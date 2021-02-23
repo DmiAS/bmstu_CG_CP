@@ -23,6 +23,8 @@ SOURCES += \
     manager.cpp \
     model.cpp \
     pixel_shader.cpp \
+    primitive.cpp \
+    raythread.cpp \
     raytraycing.cpp \
     texture.cpp \
     vertex_shader.cpp
@@ -37,6 +39,8 @@ HEADERS += \
     mainwindow.h \
     mat.h \
     model.h \
+    primitive.h \
+    raythread.h \
     scene_manager.h \
     shaders.h \
     texture.h \
