@@ -7,7 +7,12 @@ public:
   Ray(const Vec3f& origin_, const Vec3f& direction_)
     : origin(origin_)
     , direction(direction_.normalize())
-  {}
+  {
+      invdirection = {1 / direction.x, 1 / direction.y, 1 /direction.z};
+      sign[0] = (invdirection.x < 0);
+      sign[1] = (invdirection.y < 0);
+      sign[2] = (invdirection.z < 0);
+  }
   Ray(const Ray& other)
     : origin(other.origin)
     , direction(other.direction.normalize())
@@ -15,40 +20,10 @@ public:
 
 public:
   Vec3f origin;
-  Vec3f direction;
+  Vec3f direction, invdirection;
+  int sign[3];
 };
 
-//class Intersection {
-//public:
-//  Intersection()
-//    : q(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity())
-//    , n(0.0, 0.0, 0.0)
-//    , isLight(false)
-//    , lightColour(0.0, 0.0, 0.0)
-//    , u(0.0), v(0.0)
-//    , pu(0.0, 0.0, 0.0), pv(0.0, 0.0, 0.0)
-//    //, t(std::numeric_limits<double>::infinity())
-//  {}
-//  Intersection(const Intersection& other)
-//    : q(other.q)
-//    , n(other.n.normalize())
-////    , m(other.m)
-//    , isLight(other.isLight)
-//    , lightColour(other.lightColour)
-//    , u(other.u), v(other.v)
-//    , pu(other.pu), pv(other.pv)
-//    //, t(other.t)
-//  {}
-
-//  Vec3f q; // Intersection point
-//  Vec3f n; // Surface normal at intersection point
-////  std::shared_ptr<const Material> m; // Material properties at intersection point
-//  bool isLight; // True if intersection with a light object
-//  Vec3f lightColour; // If intersect with light, then this is the colour of the light
-//  double u, v; // Parametric coordinates
-//  Vec3f pu, pv; // Tangent vectors which form a orthogonal basis with the normal
-//  //double t; // Distance from ray's origin along ray's direction vector to intersection point: t*ray.direction + ray.origin
-//};
 
 class Primitive {
 public:
@@ -60,20 +35,20 @@ public:
   }
 };
 
-class NonhierSphere : public Primitive {
+
+class BoundingBox: public Primitive{
 public:
-  NonhierSphere() = default;
-  NonhierSphere(const Vec3f& pos, double radius)
-    : m_pos(pos), m_radius(radius)
-  {
-  }
-  virtual ~NonhierSphere();
-
-  virtual bool intersect(const Ray& ray) const;
-
+    BoundingBox() = default;
+    BoundingBox(const Vec3f& min_, const Vec3f& max_){
+        bounds[0] = min_;
+        bounds[1] = max_;
+    }
+    virtual ~BoundingBox() override;
+    virtual bool intersect(const Ray &ray) const override;
 private:
-  Vec3f m_pos;
-  float m_radius;
+    Vec3f min;
+    Vec3f max;
+    Vec3f bounds[2];
 };
 
 #endif // PRIMITIVE_H

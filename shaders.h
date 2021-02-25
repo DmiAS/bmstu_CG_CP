@@ -42,7 +42,7 @@ public:
 class GeometryShaderInterface{
 public:
     virtual Vertex shade(const Vertex &a,
-                         const Mat4x4f& projectMatrix) = 0;
+                         const Mat4x4f& projectMatrix, const Mat4x4f& camView) = 0;
     virtual ~GeometryShaderInterface(){}
 };
 #endif // SHADERS_H

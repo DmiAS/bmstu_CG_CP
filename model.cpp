@@ -108,10 +108,10 @@ bool Model::triangleIntersect(const Face& face, const Ray &ray, const Mat4x4f &o
     auto h = Vec3f::cross(ray.direction, edge2);
     auto a = Vec3f::dot(edge1, h);
 
-    if (Vec3f::dot(Vec3f::cross(edge1, edge2), ray.direction) > 0){
-//        qDebug() << "false";
-        return false;
-    }
+//    if (Vec3f::dot(Vec3f::cross(edge1, edge2), ray.direction) > 0){
+////        qDebug() << "false";
+//        return false;
+//    }
 
     bool intersected = false;
 
@@ -162,11 +162,6 @@ bool Model::triangleIntersect(const Face& face, const Ray &ray, const Mat4x4f &o
 
         }else{
             data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, bary);
-//            data.color = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, bary);
-//            data.color.x += 1;
-//            data.color.y += 1;
-//            data.color.z += 1;
-//            data.color /= 2;
         }
 //        data.color =data.normal;
     }
@@ -174,6 +169,9 @@ bool Model::triangleIntersect(const Face& face, const Ray &ray, const Mat4x4f &o
 }
 
 bool Model::intersect(const Ray &ray, InterSectionData &data){
+
+    if (!this->box.intersect(ray)) return false;
+
     float model_dist = std::numeric_limits<float>::max();
 
     bool intersected = false;
@@ -193,32 +191,31 @@ bool Model::intersect(const Ray &ray, InterSectionData &data){
 }
 
 
-NonhierSphere Model::getBoundingBall() const{
-    Vec3f C = vertex_buffer[0].pos + (vertex_buffer[1].pos - vertex_buffer[0].pos) * 0.5;
-    float radius = (vertex_buffer[1].pos - vertex_buffer[0].pos).len() / 2.f;
+void Model::genBox(){
+    float inf = std::numeric_limits<float>::infinity();
+    const float eps_box = 1e-5;
+    Vec3f min = {inf, inf, inf};
+    Vec3f max = {-inf, -inf, -inf};
 
-      // This is the bouncing ball algorithm. Take any two points and construct the sphere's center
-      // at the center point of the line between the two vertices and raidus half the distance
-      // between the two vertices
-      // Then loop through each vertex. If it is outside the sphere then move the sphere's center
-      // a little bit towards the point while growing the radius as well so that the point is now inside
-      // the sphere. Keep doing this until there are no vertices outside the sphere
-      for(bool outsider = true; outsider == true;)
-      {
-        outsider = false;
-        for(auto v : vertex_buffer)
-        {
-          float length = (v.pos-C).len();
-          if(length > radius)
-          {
-            float diff = length - radius;
-            float delta = diff / length;
-            C = C + (v.pos-C)*(0.5 * delta);
-            radius = radius + (0.5 * diff);
-            outsider = true;
-          }
-        }
-      }
+    for (auto &v : vertex_buffer){
+        Vec4f tmp(v.pos);
+        tmp = tmp * this->objToWorld();
+        if (tmp.x < min.x)
+            min.x = tmp.x;
+        if (tmp.y < min.y)
+            min.y = tmp.y;
+        if (tmp.z < min.z)
+            min.z = tmp.z;
 
-      return NonhierSphere(C, radius);
+        if (tmp.x > max.x)
+            max.x = tmp.x;
+        if (tmp.y > max.y)
+            max.y = tmp.y;
+        if (tmp.z > max.z)
+            max.z = tmp.z;
+    }
+
+    this->box = BoundingBox(min, max);
+
 }
+

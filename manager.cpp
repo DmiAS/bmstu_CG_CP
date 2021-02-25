@@ -51,7 +51,8 @@ void SceneManager::render_all(){
 bool SceneManager::backfaceCulling(const Vertex &a, const Vertex &b, const Vertex &c){
     auto cam = camers[curr_camera];
 
-    auto face_normal = Vec3f::cross(b.pos - a.pos, c.pos - b.pos);
+    auto face_normal = Vec3f::cross(b.pos - a.pos, c.pos - a.pos);
+//    qDebug() << "face_normal = " << face_normal.x << face_normal.y << face_normal.z;
 //    if (Vec3f::dot(face_normal, a.normal) < 0)
 //        face_normal *= -1.f;
 
@@ -59,7 +60,7 @@ bool SceneManager::backfaceCulling(const Vertex &a, const Vertex &b, const Verte
     auto res2 = Vec3f::dot(face_normal, b.pos - cam.position);
     auto res3 = Vec3f::dot(face_normal, c.pos - cam.position);
 
-    if ((res1 > 0 || fabs(res1) < eps) && (res2 > 0 || fabs(res2) < eps) && (res3 > 0 || fabs(res3) < eps))
+    if ((res1 > 0) && (res2 > 0) && (res3 > 0))
         return true;
     return false;
 }
@@ -74,6 +75,12 @@ bool SceneManager::clip(const Vertex& v){
            (v.pos.z < w || fabs(v.pos.z - w) < eps);
 }
 
+
+bool winding_order(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3){
+//    Vec3f edge0, edge1;
+    return (p2.x - p1.x) * (p2.y + p1.y) + (p3.x - p2.x) * (p3.y + p2.y) > 0;
+}
+
 void SceneManager::rasterize(Model& model){
     auto cam = camers[curr_camera];
     auto rotation_matrix = model.rotation_matrix;
@@ -82,6 +89,7 @@ void SceneManager::rasterize(Model& model){
     auto projMatrix = cam.projectionMatrix;
 
 //    for (int i = 0; i < model.index_buffer.size() / 3; i++){
+//    int cnt = 0;
     for (auto& face: model.faces){
 
 //        auto a = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i]], rotation_matrix, objToWorld, cam);
@@ -91,20 +99,19 @@ void SceneManager::rasterize(Model& model){
         auto b = vertex_shader->shade(face.b, rotation_matrix, objToWorld, cam);
         auto c = vertex_shader->shade(face.c, rotation_matrix, objToWorld, cam);
 
-//        if (backfaceCulling(a, b, c))
-//            continue;
+//        qDebug() << "face i = " << cnt;
+//        cnt += 1;
 
-        a = geom_shader->shade(a, projMatrix);
-        b = geom_shader->shade(b, projMatrix);
-        c = geom_shader->shade(c, projMatrix);
+        if (backfaceCulling(a, b, c))
+            continue;
+//        if (winding_order(a.pos, b.pos, c.pos)) continue;
+
+        a = geom_shader->shade(a, projMatrix, viewMatrix);
+        b = geom_shader->shade(b, projMatrix, viewMatrix);
+        c = geom_shader->shade(c, projMatrix, viewMatrix);
 
         rasterBarTriangle(a, b, c);
     }
-}
-
-bool winding_order(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3){
-//    Vec3f edge0, edge1;
-    return 0 > (p2.x - p1.x) * (p2.y - p1.y) + (p3.x - p2.x) * (p3.y - p2.y);
 }
 
 #define Min(val1, val2) std::min(val1, val2)

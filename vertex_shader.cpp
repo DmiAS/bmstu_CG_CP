@@ -3,7 +3,7 @@
 Vertex VertexShader::shade(const Vertex &a, const Mat4x4f& rotMatrix, const Mat4x4f& objToWorld, const Camera& cam){
     Vec4f res(a.pos);
     res = res * objToWorld;
-    res = res * cam.viewMatrix();
+//    res = res * cam.viewMatrix();
 
     Vertex output = a;
     output.pos = Vec3f(res.x, res.y, res.z);

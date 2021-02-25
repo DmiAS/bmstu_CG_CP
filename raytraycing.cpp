@@ -138,7 +138,6 @@ bool RayThread::sceneIntersect(const Ray &ray, InterSectionData &data, float t_m
             closeset_t = d.t;
             intersected = true;
             data = d;
-//            data.point = ray.origin + ray.direction * data.t;
             data.model = *model;
         }
     }
@@ -152,7 +151,6 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
     InterSectionData data;
     if (depth > 1 || !sceneIntersect(ray, data))
         return Vec3f{0.f, 0, 0};
-
 //    if (depth > 0){
 //        qDebug() << "intersected" << ray.direction.x << ray.direction.y << ray.direction.z;
 //        qDebug() << "point = " << data.point.x << data.point.y << data.point.z;
@@ -224,7 +222,7 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
     }
 
 //    auto local_color = data.color.hadamard(computeLightning(data.point, data.normal, -ray.direction, data.model.specular)).saturate();
-    auto local_color = data.color.hadamard(ambient + diffuse + spec + reflect_color * 0.8f + refract_color * 0.3f).saturate();
+    auto local_color = data.color.hadamard(ambient + diffuse + spec + refract_color * 0.8f).saturate();
 //    auto local_color = data.color.hadamard(ambient).saturate();
     return local_color;
 }
@@ -263,11 +261,11 @@ std::vector<RayBound> split(int width, int height){
     int step = height / 4;
     int start = 0;
     std::vector<RayBound> output;
-//    for (int i = 0; i < 4; ++i) {
-//        output.push_back(RayBound{.xs = 0, .xe = width - 1, .ys = start, .ye = (start + step - 1) % height});
-//        start += step;
-//    }
-    output.push_back({.xs = 0, .xe = width - 1, .ys = 0, .ye = height - 1});
+    for (int i = 0; i < 4; ++i) {
+        output.push_back(RayBound{.xs = 0, .xe = width - 1, .ys = start, .ye = (start + step - 1) % height});
+        start += step;
+    }
+//    output.push_back({.xs = 0, .xe = width - 1, .ys = 0, .ye = height - 1});
 //    return subBlock(RayBound{.xs = 0, .xe = width, .ys = 0, .ye = height}, 0);
     return output;
 }
@@ -280,6 +278,11 @@ void SceneManager::trace(){
     auto origin = cam.position;
     auto mat = cam.viewMatrix() * cam.projectionMatrix;
     auto inverse = Mat4x4f::Inverse(mat);
+
+    for (auto& model: models)
+        if (model->isObject())
+            model->genBox();
+
     for (auto& bound: v){
         auto th = new RayThread(&cam, img,  models, inverse, bound, width, height);
         th->start();

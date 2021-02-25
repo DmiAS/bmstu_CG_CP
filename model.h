@@ -110,7 +110,11 @@ public:
     std::pair<data_intersect, data_intersect> interSect(const Vec3f& o, const Vec3f& d);
     bool intersect(const Ray& ray, InterSectionData& data);
 
-    NonhierSphere getBoundingBall() const;
+//    NonhierSphere getBoundingBall() const;
+
+    void genBox();
+
+//    virtual ~Model(){}
 
 
 private:
@@ -139,7 +143,8 @@ public:
     float refractive = 1.f;
     float transparency = 0.f;
     Vec3f color;
-    NonhierSphere m_boundingBall;
+//    NonhierSphere m_boundingBall;
+    BoundingBox box;
 
 private:
     float angle_x = 0.f, angle_y = 0.f, angle_z = 0.f;
