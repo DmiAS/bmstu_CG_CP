@@ -170,7 +170,7 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
     Vec3f ambient, diffuse = {0.f, 0.f, 0.f}, spec = {0.f, 0.f, 0.f}, lightDir = {0.f, 0.f, 0.f},
             reflect_color = {0.f, 0.f, 0.f}, refract_color = {0.f, 0.f, 0.f};
 
-    Vec3f refract_dir = refract(ray.direction, data.normal, 125.f).normalize();
+    Vec3f refract_dir = refract(ray.direction, data.normal, 1.f).normalize();
     Vec3f refract_orig = Vec3f::dot(refract_dir, data.normal) < 0 ? data.point - data.normal * 1e-3f : data.point + data.normal * 1e3f;
     refract_color = cast_ray(Ray(refract_orig, refract_dir), depth + 1);
 
