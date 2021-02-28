@@ -22,6 +22,10 @@ void SceneManager::init(){
     render_all();
 }
 
+void SceneManager::render(){
+    this->render_all();
+}
+
 void SceneManager::render_all(){
 
     img.fill(Qt::black);
@@ -143,6 +147,16 @@ bool SceneManager::testAndSet(const Vec3f& p){
         return true;
     }
     return false;
+}
+
+
+void SceneManager::showTracedResult(){
+    for (auto& th: threads){
+        th->wait();
+        delete th;
+    }
+    threads.clear();
+    this->show();
 }
 
 void SceneManager::show(){

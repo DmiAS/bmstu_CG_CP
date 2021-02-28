@@ -9,13 +9,17 @@
 #include "light.h"
 #include "color_shader.h"
 #include "vertex_shader.h"
+#include "raythread.h"
 #include <QtDebug>
+#include <QMutex>
 
 enum trans_type{shift_x, shift_y, shift_z,
                 rot_x, rot_y, rot_z,
                 scale_x, scale_y, scale_z,
                 up_y, down_y
                };
+
+using ThreadVector = std::vector<RayThread*>;
 
 class SceneManager{
 
@@ -73,7 +77,11 @@ public:
 
     void setAmbIntensity(float intensity);
 
-    void trace();
+    ThreadVector* trace();
+
+    void showTracedResult();
+
+    void render();
 
 private:
     void render_all();
@@ -90,8 +98,6 @@ private:
 
     bool clip(const Vertex& p);
 
-
-
 private:
     std::vector<Camera> camers;
     int curr_camera = 0;
@@ -101,12 +107,17 @@ private:
     QImage img;
     QColor background_color;
     QGraphicsScene *scene;
+
     std::shared_ptr<PixelShaderInterface> pixel_shader;
     std::shared_ptr<VertexShaderInterface> vertex_shader;
     std::shared_ptr<GeometryShaderInterface> geom_shader;
+
     uint32_t models_index = 1;
     int current_model = 0;
     float vw = 1.f, vh = 1.f;
     float d = 1.f;
+
+    ThreadVector threads;
+
 };
 #endif // SCENE_MANAGER_H

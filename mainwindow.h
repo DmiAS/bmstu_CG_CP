@@ -42,6 +42,9 @@ public:
     SceneManager manager;
     ~MainWindow();
 
+public slots:
+
+    void checkThread();
 
 private slots:
     void fetch(QModelIndex index);
@@ -100,11 +103,20 @@ private slots:
     void on_ambient_spin_valueChanged(double arg1);
 
 private:
+
+    void disableAll(bool flag);
+
+private:
     Ui::MainWindow *ui;
     QStringListModel *model;
     std::map<QString, uint32_t> text_uid;
     std::map<QString, UI_data> name_data;
     QString prev_selected = "";
+
+    ThreadVector* threads;
+    int th_amount = 0;
+    QMutex mutex;
+    bool isLocked = false;
 };
 
 class Filter: public QObject{

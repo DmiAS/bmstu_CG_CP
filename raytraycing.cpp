@@ -263,15 +263,12 @@ std::vector<RayBound> split(int width, int height){
         output.push_back(RayBound{.xs = 0, .xe = width - 1, .ys = start, .ye = (start + step - 1) % height});
         start += step;
     }
-//    output.push_back({.xs = 0, .xe = width - 1, .ys = 0, .ye = height - 1});
-//    return subBlock(RayBound{.xs = 0, .xe = width, .ys = 0, .ye = height}, 0);
     return output;
 }
 
-void SceneManager::trace(){
+ThreadVector* SceneManager::trace(){
     img.fill(Qt::black);
     auto v = split(width, height);
-    std::vector<RayThread*> threads;
     auto cam = camers[curr_camera];
     auto origin = cam.position;
     auto mat = cam.viewMatrix() * cam.projectionMatrix;
@@ -282,15 +279,10 @@ void SceneManager::trace(){
             model->genBox();
 
     for (auto& bound: v){
-        auto th = new RayThread(&cam, img,  models, inverse, bound, width, height);
-        th->start();
-        qDebug() << "started";
+        auto th = new RayThread(&camers[curr_camera], img,  models, inverse, bound, width, height);
         threads.push_back(th);
     }
 
-    for (auto& th: threads){
-        th->wait();
-        delete th;
-    }
-    show();
+    return &threads;
+
 }

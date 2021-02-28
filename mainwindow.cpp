@@ -47,11 +47,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto stringList = new QStringList();
     model = new QStringListModel(*stringList);
-//    model->event
 
     ui->scene_list->setModel(model);
     ui->scene_list->setEditTriggers(QAbstractItemView::NoEditTriggers);
-//    ui->scene_list->setSelectionMode(QAbstractItemView::Selec);
 
     connect(ui->scene_list, SIGNAL(clicked(QModelIndex)), this, SLOT(fetch(QModelIndex)));
 
@@ -224,7 +222,6 @@ void MainWindow::hideButtons(bool isLight){
 }
 
 void MainWindow::fetch(QModelIndex index){
-    qDebug() << "fetching";
     if (!index.isValid()) return;
     auto text = model->index(index.row()).data(Qt::DisplayRole).toString();
     showButtons(name_data.at(text).isLight);
@@ -236,10 +233,69 @@ void MainWindow::fetch(QModelIndex index){
     prev_selected = text;
 }
 
+void MainWindow::disableAll(bool flag){
+
+    ui->ambient_spin->setEnabled(flag);
+    ui->glitter_spin->setEnabled(flag);
+    ui->transparency_spin->setEnabled(flag);
+
+    ui->scale_x_spin->setEnabled(flag);
+    ui->scale_y_spin->setEnabled(flag);
+    ui->scale_z_spin->setEnabled(flag);
+
+    ui->rotate_x_spin->setEnabled(flag);
+    ui->rotate_y_spin->setEnabled(flag);
+    ui->rotate_z_spin->setEnabled(flag);
+
+    ui->offset_x_spin->setEnabled(flag);
+    ui->offset_y_spin->setEnabled(flag);
+    ui->offset_z_spin->setEnabled(flag);
+
+    ui->color_flag->setEnabled(flag);
+    ui->texture_flag->setEnabled(flag);
+    ui->add_texture_button->setEnabled(flag);
+    ui->color_add_button->setEnabled(flag);
+
+    ui->scene_list->setEnabled(flag);
+    ui->objects_list->setEnabled(flag);
+    ui->add_light_list->setEnabled(flag);
+
+    ui->intensity_spin->setEnabled(flag);
+    ui->ambient_spin->setEnabled(flag);
+
+    ui->add_light_button->setEnabled(flag);
+    ui->add_object_button->setEnabled(flag);
+
+    ui->delete_object_button->setEnabled(flag);
+
+}
 
 void MainWindow::on_render_button_clicked()
 {
-    manager.trace();
+    if (isLocked){
+        disableAll(true);
+        isLocked = false;
+        manager.render();
+        return;
+    }
+    threads = manager.trace();
+    if (threads){
+        for (auto& th: *threads){
+            QObject::connect(th, SIGNAL(finished()), this, SLOT(checkThread()));
+            th->start();
+        }
+        th_amount = threads->size();
+        disableAll(false);
+        isLocked = true;
+    }
+}
+
+void MainWindow::checkThread(){
+    QMutexLocker ml(&mutex);
+    if (--th_amount == 0){
+        manager.showTracedResult();
+        ui->render_button->setEnabled(true);
+    }
 }
 
 void MainWindow::on_rotate_x_spin_valueChanged(double arg1)
