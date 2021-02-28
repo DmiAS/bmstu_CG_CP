@@ -18,7 +18,9 @@ public:
     }
 
     Vec3 normalize() const{
-        const T length = len();
+        T length = len();
+        if (fabs(length) < std::numeric_limits<T>::epsilon())
+            length = (T)1;
         return Vec3{x/length, y/length, z/length};
     }
 

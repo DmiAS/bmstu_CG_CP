@@ -38,7 +38,8 @@ void RayThread::run()
             auto d = toWorld(u, v, w_, x, y).normalize();
             auto color = cast_ray(Ray(cam->position, d)) * 255.f;
             img.setPixelColor(x, y, QColor(color.x, color.y, color.z));
-//            img.setPixelColor(x, y, Qt::red);
         }
     }
+
+    emit finished();
 }

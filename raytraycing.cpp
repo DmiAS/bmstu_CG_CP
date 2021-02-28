@@ -1,5 +1,6 @@
 ﻿#include "raythread.h"
 #include "scene_manager.h"
+#include <algorithm>
 
 const float eps_float = 1e-5;
 bool checkIntersection(const float& t, const float& t_min, const float& t_max, const float& closest_t){
@@ -12,12 +13,22 @@ Vec3f reflect(const Vec3f &L, const Vec3f &N) {
     return L - (N * 2.f * Vec3f::dot(N, L));
 }
 
-Vec3f refract(const Vec3f &I, const Vec3f &N, const float eta_t, const float eta_i=1.f) { // Snell's law
+Vec3f refract(const Vec3f &I, const Vec3f &N, float eta_t, float eta_i=1.f) { // Snell's law
+/*    float cosi = - std::max(-1.f, std::min(1.f, Vec3f::dot(I, N)));
+    Vec3f n = N;
+    if (cosi < 0){
+        cosi = -cosi;
+        std::swap(eta_i, eta_t);
+        n = -N;
+    }
+    float eta = eta_i / eta_t;
+    float k = 1.f - eta*eta*(1.f - cosi*cosi);
+    return k<0 ? Vec3f(0,0,0) : I*eta + n*(eta*cosi - sqrtf(k));*/ // k<0 = total reflection, no ray to refract. I refract it anyways, this has no physical meaning
     float cosi = - std::max(-1.f, std::min(1.f, Vec3f::dot(I, N)));
     if (cosi<0) return refract(I, -N, eta_i, eta_t); // if the ray comes from the inside the object, swap the air and the media
     float eta = eta_i / eta_t;
     float k = 1 - eta*eta*(1 - cosi*cosi);
-    return k<0 ? Vec3f(1,0,0) : I*eta + N*(eta*cosi - sqrtf(k)); // k<0 = total reflection, no ray to refract. I refract it anyways, this has no physical meaning
+    return k<0 ? Vec3f(0,0,0) : I*eta + N*(eta*cosi - sqrtf(k));
 }
 
 //Vec3f RayThread::computeLightning(const Vec3f &p, const Vec3f &n, const Vec3f &direction, float specular, int depth){
@@ -121,14 +132,12 @@ bool RayThread::sceneIntersect(const Ray &ray, InterSectionData &data, float t_m
     float closeset_t = std::numeric_limits<float>::max();
     bool intersected = false;
     InterSectionData d;
-    int cnt = 0;
     for (auto& model: models){
         if (!model->isObject()) continue;
         if (model->intersect(ray, d) && d.t < closeset_t){
             closeset_t = d.t;
             intersected = true;
             data = d;
-//            data.point = ray.origin + ray.direction * data.t;
             data.model = *model;
         }
     }
@@ -138,54 +147,47 @@ bool RayThread::sceneIntersect(const Ray &ray, InterSectionData &data, float t_m
 
 
 Vec3f RayThread::cast_ray(const Ray &ray, int depth){
-    float t_min = 1e-3, t_max = std::numeric_limits<float>::max();
+
     InterSectionData data;
-    if (depth > 6 || !sceneIntersect(ray, data))
+    if (depth > 1 || !sceneIntersect(ray, data))
         return Vec3f{0.f, 0, 0};
 
-//    if (depth > 0){
-//        qDebug() << "intersected" << ray.direction.x << ray.direction.y << ray.direction.z;
-//        qDebug() << "point = " << data.point.x << data.point.y << data.point.z;
-//        qDebug() << "t = " << data.t;
-//        qDebug() << "origin = " << ray.origin.x << ray.origin.y << ray.origin.z;
-//    }
-
-    float specular = 0.6f;
-    float di = 0.3f;
+    float di = 1 - data.model.specular;
 
     float distance = 0.f;
 
     float occlusion = 1e-4f;
-    Vec3f ambient, diffuse = {0.f, 0.f, 0.f}, spec = {0.f, 0.f, 0.f}, lightDir = {0.f, 0.f, 0.f}, reflect_color = {0.f, 0.f, 0.f};
 
-//    Vec3f refract_dir = refract(ray.direction, data.normal, 10).normalize();
-//    Vec3f refract_orig = Vec3f::dot(refract_dir, data.normal) < 0 ? data.point - data.normal * 1e-3 : data.point + data.normal * 1e3;
-//    Vec3f refract_color = cast_ray(Ray(refract_orig, refract_dir), depth + 1);
+    const float power_ref = 1.f; // влияет на прозранчость, с 1 просто стекло без преломления
 
-    Vec3f reflect_dir = reflect(ray.direction, data.normal).normalize();
-    Vec3f reflect_orig = Vec3f::dot(reflect_dir, data.normal) < 0 ? data.point - data.normal * 1e-3f : data.point + data.normal * 1e-3f;
-    reflect_color = cast_ray(Ray(reflect_orig, reflect_dir), depth + 1);
+    Vec3f ambient, diffuse = {0.f, 0.f, 0.f}, spec = {0.f, 0.f, 0.f}, lightDir = {0.f, 0.f, 0.f},
+            reflect_color = {0.f, 0.f, 0.f}, refract_color = {0.f, 0.f, 0.f};
 
+    if (fabs(data.model.refractive) > 1e-5){
+        Vec3f refract_dir = refract(ray.direction, data.normal, power_ref).normalize();
+        Vec3f refract_orig = Vec3f::dot(refract_dir, data.normal) < 0 ? data.point - data.normal * 1e-3f : data.point + data.normal * 1e3f;
+        refract_color = cast_ray(Ray(refract_orig, refract_dir), depth + 1);
+    }
+
+    if (fabs(data.model.reflective) > 1e-5){
+        Vec3f reflect_dir = reflect(ray.direction, data.normal).normalize();
+        Vec3f reflect_orig = Vec3f::dot(reflect_dir, data.normal) < 0 ? data.point - data.normal * 1e-3f : data.point + data.normal * 1e-3f;
+        reflect_color = cast_ray(Ray(reflect_orig, reflect_dir), depth + 1);
+    }
 
     for (auto &model: models){
         if (model->isObject()) continue;
         Light* light = dynamic_cast<Light*>(model);
         if (light->t == Light::light_type::ambient)
-//            i += light->color_intensity;
             ambient = light->color_intensity;
         else{
             if (light->t == Light::light_type::point){
-//                L = Vec3f{light->position.x - p.x,
-//                     light->position.y - p.y,
-//                     light->position.z - p.z,
-//                    }.normalize();
-//                t_max = 1;
                 lightDir = (light->position - data.point);
                 distance = lightDir.len();
                 lightDir = lightDir.normalize();
-//                L = (p - light->position).normalize();
             } else{
-                lightDir = light->direction;
+                lightDir = light->getDirection();
+                distance = std::numeric_limits<float>::infinity();
             }
 
             auto tDot = Vec3f::dot(lightDir, data.normal);
@@ -196,22 +198,21 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
                 if ((tmpData.point - shadow_orig).len() < distance)
                     continue;
 
-//            Vec3f reflect_dir = reflect(ray.direction, data.normal).normalize();
-//            Vec3f reflect_orig = Vec3f::dot(reflect_dir, data.normal) < 0 ? data.point - data.normal * 1e-3f : data.point + data.normal * 1e-3f;
-//            reflect_color = cast_ray(Ray(reflect_orig, reflect_dir), depth + 1);
-
             diffuse = (light->color_intensity * std::max(0.f, Vec3f::dot(data.normal, lightDir)) * di);
+            if (fabs(data.model.specular) < 1e-5) continue;
             auto r = reflect(lightDir, data.normal);
             auto r_dot = Vec3f::dot(r, ray.direction);
             auto power = powf(std::max(0.f, r_dot), 20);
-            spec = light->color_intensity * power * specular;
+            spec = light->color_intensity * power * data.model.specular;
         }
 
     }
 
-//    auto local_color = data.color.hadamard(computeLightning(data.point, data.normal, -ray.direction, data.model.specular)).saturate();
-    auto local_color = data.color.hadamard(ambient + diffuse + spec + reflect_color).saturate();
-    return local_color;
+    return data.color.hadamard(ambient +
+                               diffuse +
+                               spec +
+                               reflect_color * data.model.reflective +
+                               refract_color * data.model.refractive).saturate();
 }
 
 Vec4f toWorld(int x, int y, const Mat4x4f& inverse, int width, int height){
@@ -252,29 +253,26 @@ std::vector<RayBound> split(int width, int height){
         output.push_back(RayBound{.xs = 0, .xe = width - 1, .ys = start, .ye = (start + step - 1) % height});
         start += step;
     }
-//    output.push_back({.xs = 0, .xe = width - 1, .ys = 0, .ye = height - 1});
-//    return subBlock(RayBound{.xs = 0, .xe = width, .ys = 0, .ye = height}, 0);
     return output;
 }
 
-void SceneManager::trace(){
+ThreadVector* SceneManager::trace(){
     img.fill(Qt::black);
     auto v = split(width, height);
-    std::vector<RayThread*> threads;
     auto cam = camers[curr_camera];
     auto origin = cam.position;
     auto mat = cam.viewMatrix() * cam.projectionMatrix;
     auto inverse = Mat4x4f::Inverse(mat);
+
+    for (auto& model: models)
+        if (model->isObject())
+            model->genBox();
+
     for (auto& bound: v){
-        auto th = new RayThread(&cam, img,  models, inverse, bound, width, height);
-        th->start();
-        qDebug() << "started";
+        auto th = new RayThread(&camers[curr_camera], img,  models, inverse, bound, width, height);
         threads.push_back(th);
     }
 
-    for (auto& th: threads){
-        th->wait();
-        delete th;
-    }
-    show();
+    return &threads;
+
 }

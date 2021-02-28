@@ -30,57 +30,46 @@ public:
     Model(const std::string& fileName, uint32_t uid_, const Vec3f& scale = {1.f, 1.f, 1.f},
           const Vec3f& position = {0.f, 0.f, 0.f});
 
-    void rotateX(float angle){
+    virtual void rotateX(float angle){
         auto step = wrap_angle(angle_x, angle, rot_step_x);
         angle_x = angle;
         rotation_matrix = rotation_matrix * Mat4x4f::RotationX(step);
-//        transform_matrix = Mat4x4f::RotationX(angle) * transform_matrix;
     }
 
-    void rotateY(float angle){
+    virtual void rotateY(float angle){
         auto step = wrap_angle(angle_y, angle, rot_step_y);
         angle_y = angle;
         rotation_matrix = rotation_matrix * Mat4x4f::RotationY(step);
-//        angle_y = wrap_angle(angle_y + angle);
-//        transform_matrix = Mat4x4f::RotationY(angle) * transform_matrix;
     }
 
-    void rotateZ(float angle){
+    virtual void rotateZ(float angle){
         auto step = wrap_angle(angle_z, angle, rot_step_z);
         angle_z = angle;
         rotation_matrix = rotation_matrix * Mat4x4f::RotationZ(step);
-//        angle_z = wrap_angle(angle_z + angle);
-//        transform_matrix = Mat4x4f::RotationZ(angle) * transform_matrix;
     }
 
     virtual void shiftX(float dist){
-        shift_x += dist;
-//        transform_matrix = Mat4x4f::Translation(dist, 0, 0) * transform_matrix;
+        shift_x = dist;
     }
 
     virtual void shiftY(float dist){
-        shift_y += dist;
-//        transform_matrix = Mat4x4f::Translation(0, dist, 0) * transform_matrix;
+        shift_y = dist;
     }
 
     virtual void shiftZ(float dist){
-        shift_z += dist;
-//        transform_matrix = Mat4x4f::Translation(0, 0, dist) * transform_matrix;
+        shift_z = dist;
     }
 
     void scaleX(float factor){
-        scale_x += factor;
-//        transform_matrix = Mat4x4f::ScaleX(factor) * transform_matrix;
+        scale_x = factor;
     }
 
     void scaleY(float factor){
-        scale_y += factor;
-//        transform_matrix = Mat4x4f::ScaleY(factor) * transform_matrix;
+        scale_y = factor;
     }
 
     void scaleZ(float factor){
-        scale_z += factor;
-//        transform_matrix = Mat4x4f::ScaleZ(factor) * transform_matrix;
+        scale_z = factor;
     }
 
     Mat4x4f objToWorld() const {
@@ -90,8 +79,6 @@ public:
     }
 
     void setColor(const Vec3f& color){
-//        for (auto& v: vertex_buffer)
-//            v.color = color;
         for (auto& f: faces){
             f.a.color = color;
             f.b.color = color;
@@ -110,7 +97,9 @@ public:
     std::pair<data_intersect, data_intersect> interSect(const Vec3f& o, const Vec3f& d);
     bool intersect(const Ray& ray, InterSectionData& data);
 
-    NonhierSphere getBoundingBall() const;
+    void genBox();
+
+//    virtual ~Model(){}
 
 
 private:
@@ -134,12 +123,16 @@ public:
     Mat4x4f scale_matrix;
     QImage texture;
     bool has_texture = false;
-    float specular = 1.f;
-    float reflective = 0.5f;
-    float refractive = 1.f;
+
+    float specular = 0.f;
+
+    float reflective = 0.f;
+    float refractive = 0.f;
+
     float transparency = 0.f;
+
     Vec3f color;
-    NonhierSphere m_boundingBall;
+    BoundingBox box;
 
 private:
     float angle_x = 0.f, angle_y = 0.f, angle_z = 0.f;

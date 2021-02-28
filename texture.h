@@ -8,7 +8,7 @@ class TextureShader: public PixelShaderInterface
 public:
     TextureShader(const QImage& img);
     virtual Vec3f shade(const Vertex &a, const Vertex &b, const Vertex &c, const Vec3f &bary) override;
-    virtual ~TextureShader(){};
+    virtual ~TextureShader(){}
 private:
     QImage texture;
 };

@@ -8,8 +8,8 @@ const float eps_cam = 1e-5;
 
 class Camera{
 public:
-    Camera(float width, float height, Vec3f pos = {0, 0, -5}, Vec3f up = {0, 1, 0}, Vec3f direction = {0, 0, 1},
-           float fov = 50, float zn_ = 0.1f, float zf_ = 1000.f): position{pos}, up{up}, direction{direction},
+    Camera(float width, float height, Vec3f pos = {0, 0, -7}, Vec3f up = {0, 1, 0}, Vec3f direction = {0, 0, 1},
+           float fov = 45, float zn_ = 0.1f, float zf_ = 1000.f): position{pos}, up{up}, direction{direction},
         fov{fov}, zn{zn_}, zf{zf_}{
 
         aspect_ratio = width / height;
@@ -30,6 +30,10 @@ public:
 
     void shiftZ(float dist){
         position += direction.normalize() * dist;
+    }
+
+    void shiftY(float dist){
+        position.y += dist;
     }
 
 
