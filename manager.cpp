@@ -102,6 +102,11 @@ void SceneManager::rasterize(Model& model){
 void SceneManager::rasterBarTriangle(Vertex p1_, Vertex p2_, Vertex p3_){
 
     if (!clip(p1_) && !clip(p2_) && !clip(p3_)){
+//        qDebug() << "start";
+//        qDebug() << p1_.pos.x << p1_.pos.y << p1_.pos.z;
+//        qDebug() << p2_.pos.x << p2_.pos.y << p2_.pos.z;
+//        qDebug() << p3_.pos.x << p3_.pos.y << p3_.pos.z;
+//        qDebug() << "end";
         return;
     }
 
@@ -279,6 +284,7 @@ void SceneManager::uploadModel(std::string name, uint32_t& uid){
 void SceneManager::uploadLight(std::string name, uint32_t &uid){
     const std::map<std::string, std::string> files = {
         {"Точечный источник", "C:\\raster\\ui_mode\\icosphere.obj"},
+        {"Направленный", "C:\\raster\\ui_mode\\arrow.obj"}
     };
 
     if (!files.count(name))
@@ -288,6 +294,9 @@ void SceneManager::uploadLight(std::string name, uint32_t &uid){
     if (name == "Точечный источник"){
         models.push_back(new Light(Light::light_type::point, {1.f, 1.f, 1.f}, {0.f, 0.f, -4.f},
                                    1, {0.f, 0.f, 0.f}, files.at(name), uid, {0.2f, 0.2f, 0.2f}));
+    } else if (name == "Направленный"){
+        models.push_back(new Light(Light::light_type::directional, {1.f, 1.f, 1.f}, {0.f, 0.f, -4.f},
+                                   1, {0.f, 0.f, -1.f}, files.at(name), uid));
     }
 
     render_all();

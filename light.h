@@ -41,15 +41,37 @@ public:
         Model::shiftZ(dist);
     }
 
+    virtual void rotateX(float angle) override{
+        Model::rotateX(-angle);
+    }
+
+    virtual void rotateY(float angle) override{
+        Model::rotateY(-angle);
+
+        qDebug() << "new direction = " << direction.x << direction.y << direction.z;
+    }
+
+    virtual void rotateZ(float angle) override{
+        Model::rotateZ(-angle);
+    }
+
+    Vec3f getDirection(){
+        Vec4f temp(direction);
+        temp = temp * rotation_matrix;
+        return Vec3f{temp.x, temp.y, temp.z}.normalize();
+    }
+
     virtual bool isObject() override{return false;}
 
     virtual ~Light(){}
 
 public:
     light_type t;
-    Vec3f direction;
     Vec3f color_intensity;
     Vec3f position;
     float lightning_power;
+
+private:
+    Vec3f direction;
 };
 #endif // LIGHT_H

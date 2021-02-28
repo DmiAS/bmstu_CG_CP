@@ -350,7 +350,7 @@ const int pUp = 328, pDn = 336, home = 331, end = 333, rot_angle = 10;
 bool Filter::eventFilter(QObject *obj, QEvent *event){
     if (event->type() == QEvent::KeyPress){
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        qDebug() << "scan = " << keyEvent->nativeScanCode();
+//        qDebug() << "scan = " << keyEvent->nativeScanCode();
         switch (keyEvent->nativeScanCode()) {
         case w:
             f(shift_z, move_dist);

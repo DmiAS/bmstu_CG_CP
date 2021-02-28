@@ -158,7 +158,7 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
 
     float occlusion = 1e-4f;
 
-    const float power_ref = 1.f; // влияет на прозранчость, с 1 просто стекло без преломление
+    const float power_ref = 1.f; // влияет на прозранчость, с 1 просто стекло без преломления
 
     Vec3f ambient, diffuse = {0.f, 0.f, 0.f}, spec = {0.f, 0.f, 0.f}, lightDir = {0.f, 0.f, 0.f},
             reflect_color = {0.f, 0.f, 0.f}, refract_color = {0.f, 0.f, 0.f};
@@ -179,21 +179,15 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
         if (model->isObject()) continue;
         Light* light = dynamic_cast<Light*>(model);
         if (light->t == Light::light_type::ambient)
-//            i += light->color_intensity;
             ambient = light->color_intensity;
         else{
             if (light->t == Light::light_type::point){
-//                L = Vec3f{light->position.x - p.x,
-//                     light->position.y - p.y,
-//                     light->position.z - p.z,
-//                    }.normalize();
-//                t_max = 1;
                 lightDir = (light->position - data.point);
                 distance = lightDir.len();
                 lightDir = lightDir.normalize();
-//                L = (p - light->position).normalize();
             } else{
-                lightDir = light->direction;
+                lightDir = light->getDirection();
+                distance = std::numeric_limits<float>::infinity();
             }
 
             auto tDot = Vec3f::dot(lightDir, data.normal);
@@ -203,10 +197,6 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
             if (sceneIntersect(Ray(shadow_orig, lightDir), tmpData))
                 if ((tmpData.point - shadow_orig).len() < distance)
                     continue;
-
-//            Vec3f reflect_dir = reflect(ray.direction, data.normal).normalize();
-//            Vec3f reflect_orig = Vec3f::dot(reflect_dir, data.normal) < 0 ? data.point - data.normal * 1e-3f : data.point + data.normal * 1e-3f;
-//            reflect_color = cast_ray(Ray(reflect_orig, reflect_dir), depth + 1);
 
             diffuse = (light->color_intensity * std::max(0.f, Vec3f::dot(data.normal, lightDir)) * di);
             if (fabs(data.model.specular) < 1e-5) continue;

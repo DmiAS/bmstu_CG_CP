@@ -30,19 +30,19 @@ public:
     Model(const std::string& fileName, uint32_t uid_, const Vec3f& scale = {1.f, 1.f, 1.f},
           const Vec3f& position = {0.f, 0.f, 0.f});
 
-    void rotateX(float angle){
+    virtual void rotateX(float angle){
         auto step = wrap_angle(angle_x, angle, rot_step_x);
         angle_x = angle;
         rotation_matrix = rotation_matrix * Mat4x4f::RotationX(step);
     }
 
-    void rotateY(float angle){
+    virtual void rotateY(float angle){
         auto step = wrap_angle(angle_y, angle, rot_step_y);
         angle_y = angle;
         rotation_matrix = rotation_matrix * Mat4x4f::RotationY(step);
     }
 
-    void rotateZ(float angle){
+    virtual void rotateZ(float angle){
         auto step = wrap_angle(angle_z, angle, rot_step_z);
         angle_z = angle;
         rotation_matrix = rotation_matrix * Mat4x4f::RotationZ(step);
