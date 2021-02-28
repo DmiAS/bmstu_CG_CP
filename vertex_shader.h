@@ -6,8 +6,8 @@
 class VertexShader: public VertexShaderInterface{
 public:
     VertexShader(const Vec3f& dir_ = {0.f, 0.f, 1.f},
-                 const Vec3f& diff_ = {0.6f, 0.6f, 0.6f},
-                 const Vec3f& ambient_ = {0.5f, 0.5f, 0.5f}):
+                 const Vec3f& diff_ = {0.8f, 0.8f, 0.8f},
+                 const Vec3f& ambient_ = {0.3f, 0.3f, 0.3f}):
         dir{dir_}, light_color{diff_}, ambient{ambient_}{}
     Vertex shade(const Vertex &a,
                  const Mat4x4f& rotationMatrix,

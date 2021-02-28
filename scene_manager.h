@@ -11,7 +11,11 @@
 #include "vertex_shader.h"
 #include <QtDebug>
 
-enum trans_type{shift_x, shift_y, shift_z, rot_x, rot_y, rot_z, scale_x, scale_y, scale_z};
+enum trans_type{shift_x, shift_y, shift_z,
+                rot_x, rot_y, rot_z,
+                scale_x, scale_y, scale_z,
+                up_y, down_y
+               };
 
 class SceneManager{
 
@@ -58,6 +62,16 @@ public:
     void setFlagTexture(bool flag, const Vec3f& color);
 
     void setTexture(const QImage& img);
+
+    void setSpecular(float val);
+
+    void setReflective(float val);
+
+    void setRefraction(float refract);
+
+    void setIntensity(float intens);
+
+    void setAmbIntensity(float intensity);
 
     void trace();
 

@@ -148,6 +148,12 @@
       <height>30</height>
      </rect>
     </property>
+    <property name="maximum">
+     <double>1.000000000000000</double>
+    </property>
+    <property name="singleStep">
+     <double>0.100000000000000</double>
+    </property>
    </widget>
    <widget class="QPushButton" name="render_button">
     <property name="geometry">
@@ -302,7 +308,13 @@
      </rect>
     </property>
     <property name="minimum">
-     <double>-40.000000000000000</double>
+     <double>-100.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>100.000000000000000</double>
+    </property>
+    <property name="singleStep">
+     <double>0.500000000000000</double>
     </property>
    </widget>
    <widget class="QLabel" name="x_label">
@@ -353,7 +365,10 @@
      </rect>
     </property>
     <property name="minimum">
-     <double>-10.000000000000000</double>
+     <double>0.200000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>10.000000000000000</double>
     </property>
     <property name="singleStep">
      <double>0.100000000000000</double>
@@ -369,7 +384,10 @@
      </rect>
     </property>
     <property name="minimum">
-     <double>-10.000000000000000</double>
+     <double>0.200000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>10.000000000000000</double>
     </property>
     <property name="singleStep">
      <double>0.100000000000000</double>
@@ -385,7 +403,13 @@
      </rect>
     </property>
     <property name="minimum">
-     <double>-30.000000000000000</double>
+     <double>-100.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>100.000000000000000</double>
+    </property>
+    <property name="singleStep">
+     <double>0.500000000000000</double>
     </property>
    </widget>
    <widget class="QDoubleSpinBox" name="rotate_y_spin">
@@ -474,7 +498,10 @@
      </rect>
     </property>
     <property name="minimum">
-     <double>-10.000000000000000</double>
+     <double>0.200000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>10.000000000000000</double>
     </property>
     <property name="singleStep">
      <double>0.100000000000000</double>
@@ -490,7 +517,13 @@
      </rect>
     </property>
     <property name="minimum">
-     <double>-30.000000000000000</double>
+     <double>-100.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>100.000000000000000</double>
+    </property>
+    <property name="singleStep">
+     <double>0.500000000000000</double>
     </property>
    </widget>
    <widget class="QRadioButton" name="texture_flag">
@@ -610,6 +643,12 @@
       <height>30</height>
      </rect>
     </property>
+    <property name="maximum">
+     <double>1.000000000000000</double>
+    </property>
+    <property name="singleStep">
+     <double>0.100000000000000</double>
+    </property>
    </widget>
    <widget class="QDoubleSpinBox" name="transparency_spin">
     <property name="geometry">
@@ -619,6 +658,12 @@
       <width>111</width>
       <height>30</height>
      </rect>
+    </property>
+    <property name="maximum">
+     <double>1.000000000000000</double>
+    </property>
+    <property name="singleStep">
+     <double>0.100000000000000</double>
     </property>
    </widget>
    <widget class="QLabel" name="transparency_label">
@@ -643,8 +688,8 @@
    <widget class="QLabel" name="glitter_label">
     <property name="geometry">
      <rect>
-      <x>1566</x>
-      <y>792</y>
+      <x>1573</x>
+      <y>721</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -662,40 +707,17 @@
    <widget class="QDoubleSpinBox" name="glitter_spin">
     <property name="geometry">
      <rect>
-      <x>1566</x>
-      <y>822</y>
+      <x>1573</x>
+      <y>751</y>
       <width>111</width>
       <height>30</height>
      </rect>
     </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="refraction_spin">
-    <property name="geometry">
-     <rect>
-      <x>1566</x>
-      <y>752</y>
-      <width>111</width>
-      <height>30</height>
-     </rect>
+    <property name="maximum">
+     <double>1.000000000000000</double>
     </property>
-   </widget>
-   <widget class="QLabel" name="refraction_label">
-    <property name="geometry">
-     <rect>
-      <x>1566</x>
-      <y>722</y>
-      <width>141</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Times New Roman</family>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Преломление</string>
+    <property name="singleStep">
+     <double>0.100000000000000</double>
     </property>
    </widget>
    <widget class="QGraphicsView" name="color_preview">
@@ -709,6 +731,44 @@
     </property>
     <property name="autoFillBackground">
      <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="intensity_spin">
+    <property name="geometry">
+     <rect>
+      <x>1410</x>
+      <y>530</y>
+      <width>77</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <double>0.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>1.000000000000000</double>
+    </property>
+    <property name="singleStep">
+     <double>0.100000000000000</double>
+    </property>
+   </widget>
+   <widget class="QLabel" name="intensity_label">
+    <property name="geometry">
+     <rect>
+      <x>1410</x>
+      <y>497</y>
+      <width>161</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Интенсивность</string>
     </property>
    </widget>
   </widget>

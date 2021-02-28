@@ -2,6 +2,7 @@
 #define LIGHT_H
 #include "model.h"
 
+const float ambInt = 0.3f;
 class Light: public Model{
 public:
 
@@ -12,7 +13,7 @@ public:
         pointLightSource,
     };
 
-    Light(light_type t_ = ambient, Vec3f color_intensity_ = {0.2f, 0.2f, 0.2f},
+    Light(light_type t_ = ambient, Vec3f color_intensity_ = {ambInt, ambInt, ambInt},
           Vec3f position_ = {0, 0, 0}, float lightning_power_ = 1,
           Vec3f direction_ = {0, 0, 1},
           const std::string& fileName = "", uint32_t uid_ = 0,

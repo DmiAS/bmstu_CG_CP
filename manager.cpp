@@ -11,14 +11,11 @@ void denormolize(int width, int height, Vertex& v){
 //    v.pos.z = v.pos.z * v.invW;
     v.pos.x = NDCX_TO_RASTER(v.pos.x, width);
     v.pos.y = NDCY_TO_RASTER(v.pos.y, height);
-//    return Vec3f(point.x, point.y, point.z);
 }
 
 
 void SceneManager::init(){
-    models.push_back(new Light(Light::light_type::ambient, {0.2f, 0.2f, 0.2f}));
-//    models.push_back(new Light(Light::light_type::point, {0, 0, 1}, {.9f, .9f, .9f}, {0.f, 0.f, -40.f}, 1.f));
-//    pixel_shader = std::make_shared<TextureShader>("C:\\raster\\ui_mode\\bricks.jpg");
+    models.push_back(new Light(Light::light_type::ambient));
     pixel_shader = std::make_shared<ColorShader>();
     vertex_shader = std::make_shared<VertexShader>();
     geom_shader = std::make_shared<GeometryShader>();
@@ -26,7 +23,6 @@ void SceneManager::init(){
 }
 
 void SceneManager::render_all(){
-//    qDebug() << "rendering";
 
     img.fill(Qt::black);
 
@@ -52,9 +48,6 @@ bool SceneManager::backfaceCulling(const Vertex &a, const Vertex &b, const Verte
     auto cam = camers[curr_camera];
 
     auto face_normal = Vec3f::cross(b.pos - a.pos, c.pos - a.pos);
-//    qDebug() << "face_normal = " << face_normal.x << face_normal.y << face_normal.z;
-//    if (Vec3f::dot(face_normal, a.normal) < 0)
-//        face_normal *= -1.f;
 
     auto res1 = Vec3f::dot(face_normal, a.pos - cam.position);
     auto res2 = Vec3f::dot(face_normal, b.pos - cam.position);
@@ -76,11 +69,6 @@ bool SceneManager::clip(const Vertex& v){
 }
 
 
-bool winding_order(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3){
-//    Vec3f edge0, edge1;
-    return (p2.x - p1.x) * (p2.y + p1.y) + (p3.x - p2.x) * (p3.y + p2.y) > 0;
-}
-
 void SceneManager::rasterize(Model& model){
     auto cam = camers[curr_camera];
     auto rotation_matrix = model.rotation_matrix;
@@ -88,23 +76,14 @@ void SceneManager::rasterize(Model& model){
     auto viewMatrix = cam.viewMatrix();
     auto projMatrix = cam.projectionMatrix;
 
-//    for (int i = 0; i < model.index_buffer.size() / 3; i++){
-//    int cnt = 0;
     for (auto& face: model.faces){
 
-//        auto a = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i]], rotation_matrix, objToWorld, cam);
-//        auto b = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 1]], rotation_matrix, objToWorld, cam);
-//        auto c = vertex_shader->shade(model.vertex_buffer[model.index_buffer[3 * i + 2]], rotation_matrix, objToWorld, cam);
         auto a = vertex_shader->shade(face.a, rotation_matrix, objToWorld, cam);
         auto b = vertex_shader->shade(face.b, rotation_matrix, objToWorld, cam);
         auto c = vertex_shader->shade(face.c, rotation_matrix, objToWorld, cam);
 
-//        qDebug() << "face i = " << cnt;
-//        cnt += 1;
-
         if (backfaceCulling(a, b, c))
             continue;
-//        if (winding_order(a.pos, b.pos, c.pos)) continue;
 
         a = geom_shader->shade(a, projMatrix, viewMatrix);
         b = geom_shader->shade(b, projMatrix, viewMatrix);
@@ -121,9 +100,6 @@ void SceneManager::rasterBarTriangle(Vertex p1_, Vertex p2_, Vertex p3_){
     if (!clip(p1_) && !clip(p2_) && !clip(p3_)){
         return;
     }
-
-//    // winding order test
-//    if (winding_order(p1_.pos, p2_.pos, p3_.pos)) return;
 
     denormolize(width, height, p1_);
     denormolize(width, height, p2_);
@@ -150,7 +126,6 @@ void SceneManager::rasterBarTriangle(Vertex p1_, Vertex p2_, Vertex p3_){
                 interpolated.y = y;
                 if (testAndSet(interpolated)){
                     auto pixel_color = pixel_shader->shade(p1_, p2_, p3_, bary) * 255.f;
-//                    qDebug() << pixel_color.x, pixel_color.y, pixel_color.z;
                     img.setPixelColor(x, y, qRgb(pixel_color.x, pixel_color.y, pixel_color.z));
                 }
             }
@@ -171,9 +146,12 @@ bool SceneManager::testAndSet(const Vec3f& p){
 }
 
 void SceneManager::show(){
-//    scene->pix
     scene->clear();
     scene->addPixmap(QPixmap::fromImage(img));
+}
+
+float check_shift(float curr, float target){
+    return curr > target ? -1.f : 1.f;
 }
 
 void SceneManager::shift(trans_type t, float val){
@@ -243,6 +221,16 @@ void SceneManager::moveCamera(trans_type t, float dist){
     case rot_y:
         change_func = [&](){
             cam.rotateY(dist);
+        };
+        break;
+    case up_y:
+        change_func = [&](){
+            cam.shiftY(dist);
+        };
+        break;
+    case down_y:
+        change_func = [&](){
+            cam.shiftY(dist);
         };
         break;
     default:
@@ -322,4 +310,39 @@ void SceneManager::setFlagTexture(bool flag, const Vec3f& color){
     models[current_model]->has_texture = flag;
     models[current_model]->setColor(color);
     render_all();
+}
+
+void SceneManager::setSpecular(float val){
+    models[current_model]->specular = val;
+    render_all();
+}
+
+void SceneManager::setReflective(float val){
+    models[current_model]->reflective = val;
+    render_all();
+}
+
+void SceneManager::setRefraction(float refract){
+    models[current_model]->refractive = refract;
+    render_all();
+}
+
+void SceneManager::setIntensity(float intens){
+    Light* l = dynamic_cast<Light*>(models[current_model]);
+    l->color_intensity.x = intens;
+    l->color_intensity.y = intens;
+    l->color_intensity.z = intens;
+    render_all();
+}
+
+void SceneManager::setAmbIntensity(float intensity){
+    for (auto& model: models){
+        if (model->isObject()) continue;
+        Light* l = dynamic_cast<Light*>(model);
+        if (l->t == Light::light_type::ambient){
+            l->color_intensity.x = intensity;
+            l->color_intensity.y = intensity;
+            l->color_intensity.z = intensity;
+        }
+    }
 }

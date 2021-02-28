@@ -1,8 +1,10 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-UI_data::UI_data(){
+UI_data::UI_data(bool isLight_, const Vec3f& p){
     img.load("C:\\raster\\ui_mode\\bricks.jpg");
+    isLight = isLight_;
+    shift_x = p.x, shift_y = p.y, shift_z = p.z;
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -58,7 +60,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->texture_img->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->texture_img->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    hideButtons();
+    ui->ambient_spin->setValue(ambInt);
+
+    hideButtons(false);
 
     manager.init();
 }
@@ -83,6 +87,10 @@ void MainWindow::lockSignals(bool flag){
     ui->scale_x_spin->blockSignals(flag);
     ui->scale_y_spin->blockSignals(flag);
     ui->scale_z_spin->blockSignals(flag);
+
+    ui->intensity_spin->blockSignals(flag);
+
+    ui->glitter_spin->blockSignals(flag);
 }
 
 void MainWindow::fill_data(const UI_data& data){
@@ -113,6 +121,12 @@ void MainWindow::fill_data(const UI_data& data){
     ui->color_add_button->setDisabled(data.texture_flag);
     ui->add_texture_button->setDisabled(data.color_flag);
 
+    ui->glitter_spin->setValue(data.specular);
+    ui->transparency_spin->setValue(data.refractive);
+    ui->reflection_spin->setValue(data.reflective);
+
+    ui->intensity_spin->setValue(data.intensity);
+
     lockSignals(false);
 
 }
@@ -138,9 +152,18 @@ void MainWindow::save_data(UI_data& data){
 
     data.color = Vec3f(color.redF(), color.greenF(), color.blueF());
 
+    data.specular = ui->glitter_spin->value();
+
+    data.reflective = ui->reflection_spin->value();
+    data.refractive = ui->transparency_spin->value();
+
+    data.intensity = ui->intensity_spin->value();
+
 }
 
-void MainWindow::changeHidence(bool flag){
+
+
+void MainWindow::changeHidence(bool flag, bool isLight){
     ui->offset_x_spin->setHidden(flag);
     ui->offset_y_spin->setHidden(flag);
     ui->offset_z_spin->setHidden(flag);
@@ -149,17 +172,31 @@ void MainWindow::changeHidence(bool flag){
     ui->rotate_y_spin->setHidden(flag);
     ui->rotate_z_spin->setHidden(flag);
 
-    ui->scale_x_spin->setHidden(flag);
-    ui->scale_y_spin->setHidden(flag);
-    ui->scale_z_spin->setHidden(flag);
+    ui->intensity_label->setHidden(flag);
+    ui->intensity_spin->setHidden(flag);
 
-    ui->offset_label->setHidden(flag);
-    ui->rotate_label->setHidden(flag);
-    ui->scale_label->setHidden(flag);
 
     ui->x_label->setHidden(flag);
     ui->y_label->setHidden(flag);
     ui->z_label->setHidden(flag);
+
+    ui->offset_label->setHidden(flag);
+    ui->rotate_label->setHidden(flag);
+
+    if (isLight){
+        ui->intensity_label->setHidden(flag);
+        ui->intensity_spin->setHidden(flag);
+        flag = !flag;
+    }else{
+        ui->intensity_label->setHidden(true);
+        ui->intensity_spin->setHidden(true);
+    }
+
+    ui->scale_x_spin->setHidden(flag);
+    ui->scale_y_spin->setHidden(flag);
+    ui->scale_z_spin->setHidden(flag);
+
+    ui->scale_label->setHidden(flag);
 
     ui->texture_img->setHidden(flag);
     ui->texture_flag->setHidden(flag);
@@ -170,31 +207,28 @@ void MainWindow::changeHidence(bool flag){
     ui->color_preview->setHidden(flag);
 
     ui->reflection_spin->setHidden(flag);
-    ui->refraction_spin->setHidden(flag);
     ui->glitter_spin->setHidden(flag);
     ui->transparency_spin->setHidden(flag);
 
     ui->glitter_label->setHidden(flag);
-    ui->refraction_label->setHidden(flag);
     ui->transparency_label->setHidden(flag);
     ui->reflection_label->setHidden(flag);
 }
 
-void MainWindow::showButtons(){
-    changeHidence(false);
+void MainWindow::showButtons(bool isLight){
+    changeHidence(false, isLight);
 }
 
-void MainWindow::hideButtons(){
-    changeHidence(true);
+void MainWindow::hideButtons(bool isLight){
+    changeHidence(true, isLight);
 }
 
 void MainWindow::fetch(QModelIndex index){
     qDebug() << "fetching";
     if (!index.isValid()) return;
     auto text = model->index(index.row()).data(Qt::DisplayRole).toString();
-    if (prev_selected == "")
-        showButtons();
-    else
+    showButtons(name_data.at(text).isLight);
+    if (prev_selected != "")
         save_data(name_data.at(prev_selected));
     manager.setCurrentModel(text_uid.at(text));
     if (name_data.count(text))
@@ -205,108 +239,62 @@ void MainWindow::fetch(QModelIndex index){
 
 void MainWindow::on_render_button_clicked()
 {
-//    manager.init();
     manager.trace();
 }
 
 void MainWindow::on_rotate_x_spin_valueChanged(double arg1)
 {
-//    static auto prev_value = 0.f;
-//    float step = ui->rotate_x_spin->singleStep();
-//    if (arg1 < prev_value)
-//        step *= -1;
-//    prev_value = arg1;
     manager.rotate(rot_x, arg1);
 }
 
 void MainWindow::on_rotate_y_spin_valueChanged(double arg1)
 {
-//    static auto prev_value = 0.f;
-//    float step = ui->rotate_y_spin->singleStep();
-//    if (arg1 < prev_value)
-//        step *= -1;
-//    prev_value = arg1;
     manager.rotate(rot_y, -arg1);
 }
 
 void MainWindow::on_rotate_z_spin_valueChanged(double arg1)
 {
-//    static auto prev_value = 0.f;
-//    float step = ui->rotate_z_spin->singleStep();
-//    if (arg1 < prev_value)
-//        step *= -1;
-//    prev_value = arg1;
     manager.rotate(rot_z, arg1);
 }
 
 void MainWindow::on_offset_x_spin_valueChanged(double arg1)
 {
-    static auto prev_value = 0.f;
-    float step = ui->offset_x_spin->singleStep();
-    if (arg1 < prev_value)
-        step *= -1;
-    prev_value = arg1;
-    manager.shift(shift_x, step);
+    manager.shift(shift_x, arg1);
 }
 
 void MainWindow::on_offset_y_spin_valueChanged(double arg1)
 {
-    static auto prev_value = 0.f;
-    float step = ui->offset_y_spin->singleStep();
-    if (arg1 < prev_value)
-        step *= -1;
-    prev_value = arg1;
-    manager.shift(shift_y, step);
+    manager.shift(shift_y, arg1);
 }
 
 void MainWindow::on_offset_z_spin_valueChanged(double arg1)
 {
-    static auto prev_value = 0.f;
-    float step = ui->offset_z_spin->singleStep();
-    if (arg1 < prev_value)
-        step *= -1;
-    prev_value = arg1;
-    manager.shift(shift_z, step);
+    manager.shift(shift_z, arg1);
 }
 
 void MainWindow::on_scale_z_spin_valueChanged(double arg1)
 {
-    static auto prev_value = 0.f;
-    float step = ui->scale_z_spin->singleStep();
-    if (arg1 < prev_value)
-        step *= -1;
-    prev_value = arg1;
-    manager.scale(scale_z, step);
+    manager.scale(scale_z, arg1);
 }
 
 void MainWindow::on_scale_x_spin_valueChanged(double arg1)
 {
-    static auto prev_value = 0.f;
-    float step = ui->scale_x_spin->singleStep();
-    if (arg1 < prev_value)
-        step *= -1;
-    prev_value = arg1;
-    manager.scale(scale_x, step);
+    manager.scale(scale_x, arg1);
 }
 
 void MainWindow::on_scale_y_spin_valueChanged(double arg1)
 {
-    qDebug() << "val";
-    static auto prev_value = 0.f;
-    float step = ui->scale_y_spin->singleStep();
-    if (arg1 < prev_value)
-        step *= -1;
-    prev_value = arg1;
-    manager.scale(scale_y, step);
+    manager.scale(scale_y, arg1);
 }
 
-const int w = 17, d = 32, a = 30, s = 31;
-float move_dist= 0.5;
-const int pUp = 328, pDn = 336, home = 331, end = 333, rot_angle = 15;
+const int w = 17, d = 32, a = 30, s = 31, q = 16, e = 18;
+float move_dist = 0.5;
+const int pUp = 328, pDn = 336, home = 331, end = 333, rot_angle = 10;
 
 bool Filter::eventFilter(QObject *obj, QEvent *event){
     if (event->type() == QEvent::KeyPress){
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        qDebug() << "scan = " << keyEvent->nativeScanCode();
         switch (keyEvent->nativeScanCode()) {
         case w:
             f(shift_z, move_dist);
@@ -331,6 +319,12 @@ bool Filter::eventFilter(QObject *obj, QEvent *event){
             break;
         case end:
             f(rot_y, rot_angle);
+            break;
+        case q:
+            f(up_y, move_dist);
+            break;
+        case e:
+            f(down_y, -move_dist);
             break;
         }
         return true;
@@ -368,20 +362,18 @@ void MainWindow::on_delete_object_button_clicked()
     if (!index.isValid()) return;
     model->removeRow(index.row());
     prev_selected = "";
-    hideButtons();
+    hideButtons(false);
     manager.removeModel();
 }
 
 void MainWindow::on_color_add_button_clicked()
 {
     QColor color = QColorDialog::getColor(Qt::gray, this, QStringLiteral("Выберите цвет модели"));
-    qDebug() << "picked";
     if (!color.isValid()) return;
     auto cred = QString::number(color.red()).toFloat();
     auto cgreen = QString::number(color.green()).toFloat();
     auto cblue = QString::number(color.blue()).toFloat();
 
-//    ui->color_preview->scene()->setBackgroundBrush(QBrush(QColor(cred, cgreen, cblue)));
     ui->color_preview->scene()->setBackgroundBrush(QColor(cred, cgreen, cblue));
 
     auto color_f = Vec3f(cred / 255.f, cgreen / 255.f, cblue / 255.f);
@@ -410,21 +402,34 @@ void MainWindow::on_add_texture_button_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Выберите текстуру" );
     QImage img;
-    qDebug() << img.load(fileName);
+    if (!img.load(fileName))
+        return;
     name_data.at(prev_selected).img = img;
     manager.setTexture(img);
+}
+
+
+Vec3f posLight(const QString& name){
+    if (name == "Точечный источник")
+        return pointLightPosition;
+    else if(name == "Направленный")
+        return directionLightPosition;
+    return Vec3f{0.f, 0.f, 0.f};
 }
 
 void MainWindow::on_add_light_button_clicked()
 {
     auto text = ui->add_light_list->currentText();
+
+    auto pos = posLight(text);
+
     auto updated_text = text;
     if (!name_data.count(text))
-        name_data.insert({text, UI_data{}});
+        name_data.insert({text, UI_data{true, pos}});
     else{
         auto val = ++name_data.at(text).amount;
         updated_text += QString("%1").arg(val);
-        name_data.insert({updated_text, UI_data{}});
+        name_data.insert({updated_text, UI_data{true, pos}});
     }
     uint32_t uid = 0;
     manager.uploadLight(text.toStdString(), uid);
@@ -436,4 +441,29 @@ void MainWindow::on_add_light_button_clicked()
         text_uid.insert({updated_text, uid});
     }
     return;
+}
+
+void MainWindow::on_glitter_spin_valueChanged(double arg1)
+{
+    manager.setSpecular(arg1);
+}
+
+void MainWindow::on_reflection_spin_valueChanged(double arg1)
+{
+    manager.setReflective(arg1);
+}
+
+void MainWindow::on_transparency_spin_valueChanged(double arg1)
+{
+    manager.setRefraction(arg1);
+}
+
+void MainWindow::on_intensity_spin_valueChanged(double arg1)
+{
+    manager.setIntensity(arg1);
+}
+
+void MainWindow::on_ambient_spin_valueChanged(double arg1)
+{
+    manager.setAmbIntensity(arg1);
 }

@@ -7,18 +7,26 @@
 #include <QFileDialog>
 #include "scene_manager.h"
 
+const Vec3f pointLightPosition = {0.f, 0.f, -5.f}, directionLightPosition = {0.f, 0.f, -5.f};
+const float intensityLight = 1.f;
+
 struct UI_data{
-    UI_data();
+    UI_data(bool isLight_ = false, const Vec3f& position_ = {0.f, 0.f, 0.f});
     uint32_t amount = 0;
 
     float shift_x = 0, shift_y = 0, shift_z = 0;
     float rot_x = 0, rot_y = 0, rot_z = 0;
-    float scale_x = 0, scale_y = 0, scale_z = 0;
+    float scale_x = 1.f, scale_y = 1.f, scale_z = 1.f;
 
     bool texture_flag = false, color_flag = true;
 
     Vec3f color = {0.5, 0.5, 0.5};
+
+    float specular = 0.f, reflective = 0.f, refractive = 0.f;
+    float intensity = intensityLight;
     QImage img;
+
+    bool isLight = false;
 };
 
 QT_BEGIN_NAMESPACE
@@ -66,9 +74,9 @@ private slots:
 
     void fill_data(const UI_data& data);
     void save_data(UI_data& data);
-    void showButtons();
-    void hideButtons();
-    void changeHidence(bool);
+    void showButtons(bool isLight);
+    void hideButtons(bool isLight);
+    void changeHidence(bool, bool);
     void lockSignals(bool signal);
 
     void on_color_add_button_clicked();
@@ -80,6 +88,16 @@ private slots:
     void on_add_texture_button_clicked();
 
     void on_add_light_button_clicked();
+
+    void on_glitter_spin_valueChanged(double arg1);
+
+    void on_reflection_spin_valueChanged(double arg1);
+
+    void on_transparency_spin_valueChanged(double arg1);
+
+    void on_intensity_spin_valueChanged(double arg1);
+
+    void on_ambient_spin_valueChanged(double arg1);
 
 private:
     Ui::MainWindow *ui;
