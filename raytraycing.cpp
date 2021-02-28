@@ -170,13 +170,13 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
     Vec3f ambient, diffuse = {0.f, 0.f, 0.f}, spec = {0.f, 0.f, 0.f}, lightDir = {0.f, 0.f, 0.f},
             reflect_color = {0.f, 0.f, 0.f}, refract_color = {0.f, 0.f, 0.f};
 
-    Vec3f refract_dir = refract(ray.direction, data.normal, 1.f).normalize();
-    Vec3f refract_orig = Vec3f::dot(refract_dir, data.normal) < 0 ? data.point - data.normal * 1e-3f : data.point + data.normal * 1e3f;
-    refract_color = cast_ray(Ray(refract_orig, refract_dir), depth + 1);
+//    Vec3f refract_dir = refract(ray.direction, data.normal, 1.f).normalize();
+//    Vec3f refract_orig = Vec3f::dot(refract_dir, data.normal) < 0 ? data.point - data.normal * 1e-3f : data.point + data.normal * 1e3f;
+//    refract_color = cast_ray(Ray(refract_orig, refract_dir), depth + 1);
 
-//    Vec3f reflect_dir = reflect(ray.direction, data.normal).normalize();
-//    Vec3f reflect_orig = Vec3f::dot(reflect_dir, data.normal) < 0 ? data.point - data.normal * 1e-3f : data.point + data.normal * 1e-3f;
-//    reflect_color = cast_ray(Ray(reflect_orig, reflect_dir), depth + 1);
+    Vec3f reflect_dir = reflect(ray.direction, data.normal).normalize();
+    Vec3f reflect_orig = Vec3f::dot(reflect_dir, data.normal) < 0 ? data.point - data.normal * 1e-3f : data.point + data.normal * 1e-3f;
+    reflect_color = cast_ray(Ray(reflect_orig, reflect_dir), depth + 1);
 
 
     for (auto &model: models){
@@ -222,7 +222,7 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
     }
 
 //    auto local_color = data.color.hadamard(computeLightning(data.point, data.normal, -ray.direction, data.model.specular)).saturate();
-    auto local_color = data.color.hadamard(ambient + diffuse + spec + refract_color * 0.8f).saturate();
+    auto local_color = data.color.hadamard(ambient + diffuse + spec + reflect_color * 0.8f).saturate();
 //    auto local_color = data.color.hadamard(ambient).saturate();
     return local_color;
 }
