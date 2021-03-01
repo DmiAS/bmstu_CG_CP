@@ -263,7 +263,6 @@ void SceneManager::uploadModel(std::string name, uint32_t& uid){
         {"Сфера", "C:\\raster\\ui_mode\\less_sphere.obj"},
         {"Пирамида", "C:\\raster\\ui_mode\\pyramyd.obj"},
         {"Конус", "C:\\raster\\ui_mode\\conus_.obj"},
-        {"Плоскость", "C:\\raster\\ui_mode\\plane.obj"},
         {"Цилиндр", "C:\\raster\\ui_mode\\cyl_new.obj"}
     };
 

@@ -279,7 +279,6 @@ void MainWindow::on_render_button_clicked()
     }
     threads = manager.trace();
     if (threads){
-        start = std::chrono::high_resolution_clock::now();
         for (auto& th: *threads){
             QObject::connect(th, SIGNAL(finished()), this, SLOT(checkThread()));
             th->start();
