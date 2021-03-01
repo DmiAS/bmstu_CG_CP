@@ -35,8 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
         "Сфера",
         "Пирамида",
         "Цилиндр",
-        "Конус",
-        "Плоскость"
+        "Конус"
     };
 
     const QStringList lights = {"Точечный источник", "Направленный"};
@@ -151,7 +150,6 @@ void MainWindow::save_data(UI_data& data){
     data.color = Vec3f(color.redF(), color.greenF(), color.blueF());
 
     data.specular = ui->glitter_spin->value();
-
     data.reflective = ui->reflection_spin->value();
     data.refractive = ui->transparency_spin->value();
 
@@ -237,6 +235,7 @@ void MainWindow::disableAll(bool flag){
 
     ui->ambient_spin->setEnabled(flag);
     ui->glitter_spin->setEnabled(flag);
+    ui->reflection_spin->setEnabled(flag);
     ui->transparency_spin->setEnabled(flag);
 
     ui->scale_x_spin->setEnabled(flag);
@@ -280,6 +279,7 @@ void MainWindow::on_render_button_clicked()
     }
     threads = manager.trace();
     if (threads){
+        start = std::chrono::high_resolution_clock::now();
         for (auto& th: *threads){
             QObject::connect(th, SIGNAL(finished()), this, SLOT(checkThread()));
             th->start();
@@ -350,7 +350,6 @@ const int pUp = 328, pDn = 336, home = 331, end = 333, rot_angle = 10;
 bool Filter::eventFilter(QObject *obj, QEvent *event){
     if (event->type() == QEvent::KeyPress){
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-//        qDebug() << "scan = " << keyEvent->nativeScanCode();
         switch (keyEvent->nativeScanCode()) {
         case w:
             f(shift_z, move_dist);

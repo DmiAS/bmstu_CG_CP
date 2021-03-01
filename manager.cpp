@@ -102,11 +102,6 @@ void SceneManager::rasterize(Model& model){
 void SceneManager::rasterBarTriangle(Vertex p1_, Vertex p2_, Vertex p3_){
 
     if (!clip(p1_) && !clip(p2_) && !clip(p3_)){
-//        qDebug() << "start";
-//        qDebug() << p1_.pos.x << p1_.pos.y << p1_.pos.z;
-//        qDebug() << p2_.pos.x << p2_.pos.y << p2_.pos.z;
-//        qDebug() << p3_.pos.x << p3_.pos.y << p3_.pos.z;
-//        qDebug() << "end";
         return;
     }
 

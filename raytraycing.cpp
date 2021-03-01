@@ -9,124 +9,16 @@ bool checkIntersection(const float& t, const float& t_min, const float& t_max, c
 
 
 Vec3f reflect(const Vec3f &L, const Vec3f &N) {
-//    return I - Vec3f::dot(N*2.f, Vec3f::dot(I, N));
     return L - (N * 2.f * Vec3f::dot(N, L));
 }
 
 Vec3f refract(const Vec3f &I, const Vec3f &N, float eta_t, float eta_i=1.f) { // Snell's law
-/*    float cosi = - std::max(-1.f, std::min(1.f, Vec3f::dot(I, N)));
-    Vec3f n = N;
-    if (cosi < 0){
-        cosi = -cosi;
-        std::swap(eta_i, eta_t);
-        n = -N;
-    }
-    float eta = eta_i / eta_t;
-    float k = 1.f - eta*eta*(1.f - cosi*cosi);
-    return k<0 ? Vec3f(0,0,0) : I*eta + n*(eta*cosi - sqrtf(k));*/ // k<0 = total reflection, no ray to refract. I refract it anyways, this has no physical meaning
     float cosi = - std::max(-1.f, std::min(1.f, Vec3f::dot(I, N)));
     if (cosi<0) return refract(I, -N, eta_i, eta_t); // if the ray comes from the inside the object, swap the air and the media
     float eta = eta_i / eta_t;
     float k = 1 - eta*eta*(1 - cosi*cosi);
     return k<0 ? Vec3f(0,0,0) : I*eta + N*(eta*cosi - sqrtf(k));
 }
-
-//Vec3f RayThread::computeLightning(const Vec3f &p, const Vec3f &n, const Vec3f &direction, float specular, int depth){
-//    Vec3f i;
-//    Vec3f lightDir;
-//    specular = 0.6f;
-//    float di = 0.3f;
-
-//    float distance = 0.f;
-
-//    Vec3f ambient, diffuse = {0.f, 0.f, 0.f}, spec = {0.f, 0.f, 0.f};
-
-////    Vec3f reflect_dir = reflect(-direction, n).normalize();
-
-////    Vec3f reflect_orig = Vec3f::dot(reflect_dir, n) < 0 ? p - n * 1e-3 : p + n * 1e-3;
-////    Vec3f reflect_color = cast_ray(Ray(reflect_orig, reflect_dir), depth + 1);
-
-////    Vec3f refract_dir = refract(direction, n, 10).normalize();
-////    Vec3f refract_orig = Vec3f::dot(refract_dir, n) < 0 ? p - n * 1e-3 : p + n * 1e3;
-////    Vec3f refract_color = cast_ray(Ray(refract_orig, refract_dir), depth + 1);
-
-//    for (auto &model: models){
-//        if (model->isObject()) continue;
-//        Light* light = dynamic_cast<Light*>(model);
-//        if (light->t == Light::light_type::ambient)
-////            i += light->color_intensity;
-//            ambient = light->color_intensity;
-//        else{
-//            float t_max;
-//            if (light->t == Light::light_type::point){
-////                L = Vec3f{light->position.x - p.x,
-////                     light->position.y - p.y,
-////                     light->position.z - p.z,
-////                    }.normalize();
-////                t_max = 1;
-//                lightDir = (light->position - p);
-//                distance = lightDir.len();
-//                lightDir = lightDir.normalize();
-////                L = (p - light->position).normalize();
-//            } else{
-//                lightDir = light->direction;
-//                t_max = std::numeric_limits<float>::max();
-//            }
-
-//            auto tDot = Vec3f::dot(lightDir, n);
-
-//            Vec3f shadow_orig = tDot < 0 ? p - n*1e-3 : p + n*1e-3; // checking if the point lies in the shadow of the lights[i]
-//            InterSectionData tmpData;
-//            if (sceneIntersect(Ray(shadow_orig, lightDir), tmpData))
-//                if ((tmpData.point - shadow_orig).len() < distance)
-//                    continue;
-
-//            diffuse = (light->color_intensity * std::max(0.f, Vec3f::dot(n, lightDir)) * di);
-//            auto r = reflect(lightDir, n);
-//            auto r_dot = Vec3f::dot(r, -direction);
-//            auto power = powf(std::max(0.f, r_dot), 20);
-//            spec = light->color_intensity * power * specular;
-//        }
-
-//    }
-
-//    return (ambient + diffuse + spec + refract_color).saturate();
-//}
-
-//Vec3f reflectRay(const Vec3f& r, const Vec3f& n){
-//    return (n * 2 * Vec3f::dot(n, r)) - r;
-//}
-
-//Vec3f RayThread::traceRay(const Vec3f& o, const Vec3f& d, float t_min, float t_max, int depth){
-//    auto res = closestIntersection(o, d, t_min, t_max); // Model - closest_t
-
-//    if (fabs(res.t -  std::numeric_limits<float>::max()) < eps_float)
-//        return Vec3f{0, 0, 0};
-////    return res.model.color * 255.f;
-
-//    auto p = o + d * res.t;
-
-//    auto computed_light = computeLightning(p, res.normal, -d, res.model.specular);
-
-//    auto local_color = res.model.color.hadamard(computed_light);
-
-////    float r = res.model.reflective;
-////    if (depth <= 0 || r <= 0){
-////        return local_color;
-////    }
-
-////    if (r >= 0){
-////        auto R = reflectRay(-d, res.normal);
-////        auto reflected_color = traceRay(p, R, 1e-3, std::numeric_limits<float>::max(),
-////                                        depth - 1);
-////        local_color = local_color * (1 - r) + reflected_color * r;
-////    }
-
-//    return local_color;
-
-////    Vec3f p = o + d * res.second;
-
-//}
 
 bool RayThread::sceneIntersect(const Ray &ray, InterSectionData &data, float t_max){
     float closeset_t = std::numeric_limits<float>::max();
@@ -149,7 +41,7 @@ bool RayThread::sceneIntersect(const Ray &ray, InterSectionData &data, float t_m
 Vec3f RayThread::cast_ray(const Ray &ray, int depth){
 
     InterSectionData data;
-    if (depth > 1 || !sceneIntersect(ray, data))
+    if (depth > 2 || !sceneIntersect(ray, data))
         return Vec3f{0.f, 0, 0};
 
     float di = 1 - data.model.specular;
@@ -245,11 +137,11 @@ std::vector<RayBound> subBlock(const RayBound& bound, int depth){
 }
 
 std::vector<RayBound> split(int width, int height){
-    int cnt = 4;
-    int step = height / 4;
+    int cnt = 8;
+    int step = height / cnt;
     int start = 0;
     std::vector<RayBound> output;
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < cnt; ++i) {
         output.push_back(RayBound{.xs = 0, .xe = width - 1, .ys = start, .ye = (start + step - 1) % height});
         start += step;
     }
