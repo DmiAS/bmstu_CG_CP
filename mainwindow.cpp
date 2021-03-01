@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 
 UI_data::UI_data(bool isLight_, const Vec3f& p){
-    img.load("C:\\raster\\ui_mode\\bricks.jpg");
+    img.load("C:\\raster\\ui_mode\\textures\\bricks.jpg");
     isLight = isLight_;
     shift_x = p.x, shift_y = p.y, shift_z = p.z;
 }
@@ -109,7 +109,9 @@ void MainWindow::fill_data(const UI_data& data){
     ui->color_flag->setChecked(data.color_flag);
     ui->texture_flag->setChecked(data.texture_flag);
 
-    ui->texture_img->scene()->addPixmap(QPixmap::fromImage(data.img));
+    ui->texture_img->scene()->addPixmap(QPixmap::fromImage(
+                                            data.img.scaled(ui->texture_img->width(), ui->texture_img->height())
+                                            ));
 
     ui->color_preview->scene()->setBackgroundBrush(
                 QColor(data.color.x *255.f, data.color.y * 255.f, data.color.z * 255.f));
@@ -279,7 +281,6 @@ void MainWindow::on_render_button_clicked()
     }
     threads = manager.trace();
     if (threads){
-        start = std::chrono::high_resolution_clock::now();
         for (auto& th: *threads){
             QObject::connect(th, SIGNAL(finished()), this, SLOT(checkThread()));
             th->start();
@@ -441,7 +442,9 @@ void MainWindow::on_texture_flag_clicked()
 {
     ui->add_texture_button->setDisabled(false);
     auto img = name_data.at(prev_selected).img;
-    ui->texture_img->scene()->addPixmap(QPixmap::fromImage(img));
+    ui->texture_img->scene()->addPixmap(QPixmap::fromImage(
+                                            img.scaled(ui->texture_img->width(), ui->texture_img->height())
+                                            ));
     ui->color_add_button->setDisabled(true);
     manager.setFlagTexture(true, Vec3f{1.f, 1.f, 1.f});
 }
@@ -455,10 +458,17 @@ void MainWindow::on_color_flag_clicked()
 
 void MainWindow::on_add_texture_button_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Выберите текстуру" );
+    QString fileName = QFileDialog::getOpenFileName(this, "Выберите текстуру", "C:\\raster\\ui_mode\\textures",
+                                                    "JPG (*.jpg);;PNG (*.png)");
     QImage img;
     if (!img.load(fileName))
         return;
+
+    ui->texture_img->scene()->addPixmap(QPixmap::fromImage(
+                                            img.scaled(ui->texture_img->width(), ui->texture_img->height())
+                                            ));
+
+
     name_data.at(prev_selected).img = img;
     manager.setTexture(img);
 }
