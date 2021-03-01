@@ -66,14 +66,8 @@ Model::Model(const std::string& fileName, uint32_t uid_, const Vec3f& scale, con
         f.normal = Vec3f::cross(f.b.pos - f.a.pos, f.c.pos - f.a.pos);
     }
 
-//    for (auto& face: faces){
-//        face.a.normal = smoothNormal(face.a.pos, faces);
-//        face.b.normal = smoothNormal(face.b.pos, faces);
-//        face.c.normal = smoothNormal(face.c.pos, faces);
-//    }
-
     qDebug() << "size = " << faces.size();
-    texture.load("C:\\raster\\ui_mode\\bricks.jpg");
+    texture.load("C:\\raster\\ui_mode\\textures\\bricks.jpg");
     scale_x = scale.x;
     scale_y = scale.y;
     scale_z = scale.z;
@@ -81,8 +75,6 @@ Model::Model(const std::string& fileName, uint32_t uid_, const Vec3f& scale, con
     shift_x = position.x;
     shift_y = position.y;
     shift_z = position.z;
-
-//    m_boundingBall = getBoundingBall();
 
 }
 
@@ -107,11 +99,6 @@ bool Model::triangleIntersect(const Face& face, const Ray &ray, const Mat4x4f &o
 
     auto h = Vec3f::cross(ray.direction, edge2);
     auto a = Vec3f::dot(edge1, h);
-
-//    if (Vec3f::dot(Vec3f::cross(edge1, edge2), ray.direction) > 0){
-////        qDebug() << "false";
-//        return false;
-//    }
 
     bool intersected = false;
 
@@ -138,7 +125,6 @@ bool Model::triangleIntersect(const Face& face, const Ray &ray, const Mat4x4f &o
     if (t > 0){
         auto bary = Vec3f{1 - u - v, u, v};
         data.point = ray.origin + ray.direction * t;
-//        auto myBary = toBarycentric(p0.pos, p1.pos, p2.pos, p);
         data.normal = baryCentricInterpolation(p0.normal, p1.normal, p2.normal, bary).normalize();
         data.t = t;
         intersected = true;
@@ -163,7 +149,6 @@ bool Model::triangleIntersect(const Face& face, const Ray &ray, const Mat4x4f &o
         }else{
             data.color = baryCentricInterpolation(p0.color, p1.color, p2.color, bary);
         }
-//        data.color =data.normal;
     }
     return intersected;
 }

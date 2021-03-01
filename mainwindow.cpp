@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 
 UI_data::UI_data(bool isLight_, const Vec3f& p){
-    img.load("C:\\raster\\ui_mode\\bricks.jpg");
+    img.load("C:\\raster\\ui_mode\\textures\\bricks.jpg");
     isLight = isLight_;
     shift_x = p.x, shift_y = p.y, shift_z = p.z;
 }
@@ -458,7 +458,8 @@ void MainWindow::on_color_flag_clicked()
 
 void MainWindow::on_add_texture_button_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Выберите текстуру" );
+    QString fileName = QFileDialog::getOpenFileName(this, "Выберите текстуру", "C:\\raster\\ui_mode\\textures",
+                                                    "JPG (*.jpg);;PNG (*.png)");
     QImage img;
     if (!img.load(fileName))
         return;

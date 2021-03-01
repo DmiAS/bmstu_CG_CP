@@ -259,11 +259,11 @@ void SceneManager::moveCamera(trans_type t, float dist){
 void SceneManager::uploadModel(std::string name, uint32_t& uid){
 
     const std::map<std::string, std::string> files = {
-        {"Куб", "C:\\raster\\ui_mode\\cube.obj"},
-        {"Сфера", "C:\\raster\\ui_mode\\less_sphere.obj"},
-        {"Пирамида", "C:\\raster\\ui_mode\\pyramyd.obj"},
-        {"Конус", "C:\\raster\\ui_mode\\conus_.obj"},
-        {"Цилиндр", "C:\\raster\\ui_mode\\cyl_new.obj"}
+        {"Куб", "C:\\raster\\ui_mode\\models\\cube.obj"},
+        {"Сфера", "C:\\raster\\ui_mode\\models\\less_sphere.obj"},
+        {"Пирамида", "C:\\raster\\ui_mode\\models\\pyramyd.obj"},
+        {"Конус", "C:\\raster\\ui_mode\\models\\conus_.obj"},
+        {"Цилиндр", "C:\\raster\\ui_mode\\models\\cyl_new.obj"}
     };
 
     if (!files.count(name))
@@ -277,8 +277,8 @@ void SceneManager::uploadModel(std::string name, uint32_t& uid){
 
 void SceneManager::uploadLight(std::string name, uint32_t &uid){
     const std::map<std::string, std::string> files = {
-        {"Точечный источник", "C:\\raster\\ui_mode\\icosphere.obj"},
-        {"Направленный", "C:\\raster\\ui_mode\\arrow.obj"}
+        {"Точечный источник", "C:\\raster\\ui_mode\\models\\icosphere.obj"},
+        {"Направленный", "C:\\raster\\ui_mode\\models\\arrow.obj"}
     };
 
     if (!files.count(name))
