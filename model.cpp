@@ -33,7 +33,7 @@ Vec3f smoothNormal(const Vec3f& p, std::vector<Face>& faces){
     return (n / cnt).normalize();
 }
 
-Model::Model(const std::string& fileName, uint32_t uid_, const Vec3f& scale, const Vec3f& position){
+Model::Model(const std::string& fileName, uint32_t uid_,  int n_, const Vec3f& scale, const Vec3f& position){
     if (fileName == "")  return;
     uid = uid_;
     objl::Loader loader;
@@ -75,6 +75,8 @@ Model::Model(const std::string& fileName, uint32_t uid_, const Vec3f& scale, con
     shift_x = position.x;
     shift_y = position.y;
     shift_z = position.z;
+
+    n = n_;
 
 }
 

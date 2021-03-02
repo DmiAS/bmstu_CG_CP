@@ -288,6 +288,7 @@ void MainWindow::on_render_button_clicked()
         th_amount = threads->size();
         disableAll(false);
         isLocked = true;
+        ui->render_button->setEnabled(false);
     }
 }
 

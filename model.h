@@ -27,7 +27,7 @@ public:
 
     Model() = default;
 
-    Model(const std::string& fileName, uint32_t uid_, const Vec3f& scale = {1.f, 1.f, 1.f},
+    Model(const std::string& fileName, uint32_t uid_,  int n_ = 20, const Vec3f& scale = {1.f, 1.f, 1.f},
           const Vec3f& position = {0.f, 0.f, 0.f});
 
     virtual void rotateX(float angle){
@@ -130,6 +130,8 @@ public:
     float refractive = 0.f;
 
     float transparency = 0.f;
+
+    int n = 20;
 
     Vec3f color;
     BoundingBox box;

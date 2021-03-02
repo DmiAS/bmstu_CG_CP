@@ -256,21 +256,31 @@ void SceneManager::moveCamera(trans_type t, float dist){
     render_all();
 }
 
+const int cube_n = 512, other_n = 20, pyramid_n = 512;
 void SceneManager::uploadModel(std::string name, uint32_t& uid){
 
     const std::map<std::string, std::string> files = {
         {"Куб", "C:\\raster\\ui_mode\\models\\cube.obj"},
         {"Сфера", "C:\\raster\\ui_mode\\models\\less_sphere.obj"},
-        {"Пирамида", "C:\\raster\\ui_mode\\models\\pyramyd.obj"},
+        {"Пирамида", "C:\\raster\\ui_mode\\models\\pyr.obj"},
         {"Конус", "C:\\raster\\ui_mode\\models\\conus_.obj"},
         {"Цилиндр", "C:\\raster\\ui_mode\\models\\cyl_new.obj"}
+    };
+
+
+    const std::map<std::string, int> n_power = {
+        {"Куб", cube_n},
+        {"Сфера", other_n},
+        {"Пирамида", pyramid_n},
+        {"Конус", other_n},
+        {"Цилиндр", other_n}
     };
 
     if (!files.count(name))
         return;
 
     uid = models_index++;
-    models.push_back(new Model(files.at(name), uid));
+    models.push_back(new Model(files.at(name), uid, n_power.at(name)));
 
     render_all();
 }
