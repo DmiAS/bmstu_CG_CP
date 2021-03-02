@@ -3,6 +3,8 @@
 #include "model.h"
 
 const float ambInt = 0.3f;
+const int light_n = 1;
+
 class Light: public Model{
 public:
 
@@ -20,7 +22,7 @@ public:
           const Vec3f& scale = {1.f, 1.f, 1.f}):
         t(t_), direction(direction_), color_intensity(color_intensity_),
         position(position_), lightning_power(lightning_power_),
-        Model(fileName, uid_, scale, position_){}
+        Model(fileName, uid_, light_n, scale, position_){}
 
     void setType(const light_type& light_t){
         t = light_t;

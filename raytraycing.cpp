@@ -9,7 +9,7 @@ bool checkIntersection(const float& t, const float& t_min, const float& t_max, c
 
 
 Vec3f reflect(const Vec3f &L, const Vec3f &N) {
-    return L - (N * 2.f * Vec3f::dot(N, L));
+    return (L - (N * 2.f * Vec3f::dot(N, L))).normalize();
 }
 
 Vec3f refract(const Vec3f &I, const Vec3f &N, float eta_t, float eta_i=1.f) { // Snell's law
@@ -90,12 +90,12 @@ Vec3f RayThread::cast_ray(const Ray &ray, int depth){
                 if ((tmpData.point - shadow_orig).len() < distance)
                     continue;
 
-            diffuse = (light->color_intensity * std::max(0.f, Vec3f::dot(data.normal, lightDir)) * di);
+            diffuse += (light->color_intensity * std::max(0.f, Vec3f::dot(data.normal, lightDir)) * di);
             if (fabs(data.model.specular) < 1e-5) continue;
             auto r = reflect(lightDir, data.normal);
             auto r_dot = Vec3f::dot(r, ray.direction);
-            auto power = powf(std::max(0.f, r_dot), 20);
-            spec = light->color_intensity * power * data.model.specular;
+            auto power = powf(std::max(0.f, r_dot), data.model.n);
+            spec += light->color_intensity * power * data.model.specular;
         }
 
     }
