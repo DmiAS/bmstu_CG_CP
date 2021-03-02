@@ -29,17 +29,17 @@ public:
     }
 
     virtual void shiftX(float dist){
-        position.x += dist;
+        position.x = dist;
         Model::shiftX(dist);
     }
 
     virtual void shiftY(float dist){
-        position.y += dist;
+        position.y = dist;
         Model::shiftY(dist);
     }
 
     virtual void shiftZ(float dist){
-        position.z += dist;
+        position.z = dist;
         Model::shiftZ(dist);
     }
 
@@ -49,8 +49,6 @@ public:
 
     virtual void rotateY(float angle) override{
         Model::rotateY(-angle);
-
-        qDebug() << "new direction = " << direction.x << direction.y << direction.z;
     }
 
     virtual void rotateZ(float angle) override{

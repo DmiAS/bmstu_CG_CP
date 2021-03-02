@@ -21,6 +21,8 @@ enum trans_type{shift_x, shift_y, shift_z,
 
 using ThreadVector = std::vector<RayThread*>;
 
+const Vec3f pointLightPosition = {0.f, 0.f, -5.f}, directionLightPosition = {0.f, 0.f, -5.f};
+
 class SceneManager{
 
 public:

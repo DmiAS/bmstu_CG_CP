@@ -296,10 +296,10 @@ void SceneManager::uploadLight(std::string name, uint32_t &uid){
 
     uid = models_index++;
     if (name == "Точечный источник"){
-        models.push_back(new Light(Light::light_type::point, {1.f, 1.f, 1.f}, {0.f, 0.f, -4.f},
+        models.push_back(new Light(Light::light_type::point, {1.f, 1.f, 1.f}, pointLightPosition,
                                    1, {0.f, 0.f, 0.f}, files.at(name), uid, {0.2f, 0.2f, 0.2f}));
     } else if (name == "Направленный"){
-        models.push_back(new Light(Light::light_type::directional, {1.f, 1.f, 1.f}, {0.f, 0.f, -4.f},
+        models.push_back(new Light(Light::light_type::directional, {1.f, 1.f, 1.f}, directionLightPosition,
                                    1, {0.f, 0.f, -1.f}, files.at(name), uid));
     }
 

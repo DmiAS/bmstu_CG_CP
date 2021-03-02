@@ -7,7 +7,6 @@
 #include <QFileDialog>
 #include "scene_manager.h"
 
-const Vec3f pointLightPosition = {0.f, 0.f, -5.f}, directionLightPosition = {0.f, 0.f, -5.f};
 const float intensityLight = 1.f;
 
 struct UI_data{
