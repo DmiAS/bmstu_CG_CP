@@ -44,4 +44,6 @@ AABB(axis-aligned bounding box), что существенно ускоряет 
 
 #### Пример работы
 
-![Вид сцены на этапе ее конструирования](main/docs/) 
+![Вид сцены на этапе ее конструирования](https://github.com/DmiAS/bmstu_CG_CP/blob/main/docs/constructor.png) 
+
+![Изображение, полученное после трассировки](https://github.com/DmiAS/bmstu_CG_CP/blob/main/docs/final.png)
