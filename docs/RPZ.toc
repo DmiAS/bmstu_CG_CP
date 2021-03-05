@@ -1,0 +1,62 @@
+\babel@toc {russian}{}
+\contentsline {chapter}{Введение}{2}{chapter*.1}%
+\contentsline {chapter}{\numberline {1}Aналитический раздел}{3}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Описание модели трехмерного объекта в сцене}{3}{section.1.1}%
+\contentsline {subsection}{\numberline {1.1.1}Модель как геометрический примитив}{3}{subsection.1.1.1}%
+\contentsline {subsection}{\numberline {1.1.2}Модель как полигональная сетка}{4}{subsection.1.1.2}%
+\contentsline {subsection}{\numberline {1.1.3}Выводы}{4}{subsection.1.1.3}%
+\contentsline {section}{\numberline {1.2}Алгоритмы построения трехмерного изображения}{4}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Алгоритм Варнока}{4}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.2.2}Алгоритм Вейлера-Азертона}{5}{subsection.1.2.2}%
+\contentsline {subsection}{\numberline {1.2.3}Z-буфер}{6}{subsection.1.2.3}%
+\contentsline {subsection}{\numberline {1.2.4}Алгоритм художника}{6}{subsection.1.2.4}%
+\contentsline {subsection}{\numberline {1.2.5}Алгоритм обратной трассировки лучей}{7}{subsection.1.2.5}%
+\contentsline {subsection}{\numberline {1.2.6}Выводы}{7}{subsection.1.2.6}%
+\contentsline {section}{\numberline {1.3}Анализ алгоритмов наложения текстур на объекты трёхмерной сцены}{8}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Аффинное текстурирование}{8}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Перспективно-корректное текстурирование}{8}{subsection.1.3.2}%
+\contentsline {subsection}{\numberline {1.3.3}Выводы}{8}{subsection.1.3.3}%
+\contentsline {section}{\numberline {1.4}Алгоритмы закраски треугольников}{9}{section.1.4}%
+\contentsline {subsection}{\numberline {1.4.1}Алгоритмы со списком рёберных точек}{9}{subsection.1.4.1}%
+\contentsline {subsection}{\numberline {1.4.2}Алгоритм XOR для граней}{10}{subsection.1.4.2}%
+\contentsline {subsection}{\numberline {1.4.3}Алгоритм разделения}{10}{subsection.1.4.3}%
+\contentsline {subsection}{\numberline {1.4.4}Алгоритм заполнения треугольника с использованием барицентрических координат}{11}{subsection.1.4.4}%
+\contentsline {subsection}{\numberline {1.4.5}Выводы}{12}{subsection.1.4.5}%
+\contentsline {section}{\numberline {1.5}Описание трехмерных преобразований}{13}{section.1.5}%
+\contentsline {subsection}{\numberline {1.5.1}Способы хранения и обработки декартовых координат}{13}{subsection.1.5.1}%
+\contentsline {subsection}{\numberline {1.5.2}Преобразование трехмерного пространства в двумерное пространство экрана}{13}{subsection.1.5.2}%
+\contentsline {subsection}{\numberline {1.5.3}Матрицы аффинных преобразований декартовых координат}{14}{subsection.1.5.3}%
+\contentsline {subsection}{\numberline {1.5.4}Кватернионы}{16}{subsection.1.5.4}%
+\contentsline {subsection}{\numberline {1.5.5}Преобразования трехмерной сцены в пространство камеры}{16}{subsection.1.5.5}%
+\contentsline {subsection}{\numberline {1.5.6}Матрица перспективной проекции}{16}{subsection.1.5.6}%
+\contentsline {subsection}{\numberline {1.5.7}Преобразования трехмерной сцены в пространство области изображения}{17}{subsection.1.5.7}%
+\contentsline {subsection}{\numberline {1.5.8}Выводы}{18}{subsection.1.5.8}%
+\contentsline {section}{\numberline {1.6}Анализ алгоритмов закраски}{18}{section.1.6}%
+\contentsline {subsection}{\numberline {1.6.1}Однотонная закраска}{18}{subsection.1.6.1}%
+\contentsline {subsection}{\numberline {1.6.2}Метод закраски Гуро}{18}{subsection.1.6.2}%
+\contentsline {subsection}{\numberline {1.6.3}Метод закраски Фонга}{19}{subsection.1.6.3}%
+\contentsline {subsection}{\numberline {1.6.4}Выводы}{19}{subsection.1.6.4}%
+\contentsline {section}{\numberline {1.7}Алгоритмы, моделирующие освещение}{20}{section.1.7}%
+\contentsline {subsection}{\numberline {1.7.1}Модель Ламберта}{20}{subsection.1.7.1}%
+\contentsline {subsection}{\numberline {1.7.2}Модель Фонга}{21}{subsection.1.7.2}%
+\contentsline {section}{\numberline {1.8}Вывод}{22}{section.1.8}%
+\contentsline {chapter}{\numberline {2}Конструкторский раздел}{23}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Алгоритм удаления невидимых граней с использованием z-буфера}{24}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Алгоритм обратной трассировки лучей}{24}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Пересечение трассирующего луча с треугольником}{25}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Алгоритм нахождения пересечения луча с параллелепипедом}{26}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Нахождение отраженного луча}{28}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Расчет интенсивностей}{29}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Описание входных данных}{30}{section.2.7}%
+\contentsline {chapter}{\numberline {3}Технологический раздел}{31}{chapter.3}%
+\contentsline {subsection}{\numberline {3.0.1}Средства реализации}{31}{subsection.3.0.1}%
+\contentsline {section}{\numberline {3.1}Описание структуры программы}{31}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Листинг кода}{32}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Описание интерфейса}{35}{section.3.3}%
+\contentsline {chapter}{\numberline {4}Исследовательский раздел}{41}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Технические характеристики}{41}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Описание экспериментов}{41}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Зависимость времени работы алгоритма обратной трассировки лучей от количества потоков программы}{41}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Зависимость времени работы алгоритма обратной трассировки лучей от алгоритмов пересечения}{42}{subsection.4.2.2}%
+\contentsline {section}{\numberline {4.3}Демонстрация работы программы}{43}{section.4.3}%
+\contentsline {chapter}{Список использованной литературы}{45}{chapter*.40}%

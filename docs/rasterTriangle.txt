@@ -1,0 +1,40 @@
+#define Min(val1, val2) std::min(val1, val2)
+#define Max(val1, val2) std::max(val1, val2)
+void SceneManager::rasterBarTriangle(Vertex p1_, Vertex p2_, Vertex p3_){
+
+    if (!clip(p1_) && !clip(p2_) && !clip(p3_)){
+        return;
+    }
+
+    denormolize(width, height, p1_);
+    denormolize(width, height, p2_);
+    denormolize(width, height, p3_);
+
+    auto p1 = p1_.pos;
+    auto p2 = p2_.pos;
+    auto p3 = p3_.pos;
+
+    float sx = std::floor(Min(Min(p1.x, p2.x), p3.x));
+    float ex = std::ceil(Max(Max(p1.x, p2.x), p3.x));
+
+    float sy = std::floor(Min(Min(p1.y, p2.y), p3.y));
+    float ey = std::ceil(Max(Max(p1.y, p2.y), p3.y));
+
+    for (int y = static_cast<int>(sy); y < static_cast<int>(ey); y++){
+        for (int x = static_cast<int>(sx); x < static_cast<int>(ex); x++){
+            Vec3f bary = toBarycentric(p1, p2, p3, Vec3f(static_cast<float>(x), static_cast<float>(y)));
+            if ( (bary.x > 0.0f || fabs(bary.x) < eps) && (bary.x < 1.0f || fabs(bary.x - 1.0f) < eps) &&
+                 (bary.y > 0.0f || fabs(bary.y) < eps) && (bary.y < 1.0f || fabs(bary.y - 1.0f) < eps) &&
+                 (bary.z > 0.0f || fabs(bary.z) < eps) && (bary.z < 1.0f || fabs(bary.z - 1.0f) < eps)){
+                auto interpolated = baryCentricInterpolation(p1, p2, p3, bary);
+                interpolated.x = x;
+                interpolated.y = y;
+                if (testAndSet(interpolated)){
+                    auto pixel_color = pixel_shader->shade(p1_, p2_, p3_, bary) * 255.f;
+                    img.setPixelColor(x, y, qRgb(pixel_color.x, pixel_color.y, pixel_color.z));
+                }
+            }
+        }
+    }
+
+}
