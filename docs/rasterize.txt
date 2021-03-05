@@ -1,0 +1,23 @@
+void SceneManager::rasterize(Model& model){
+    auto cam = camers[curr_camera];
+    auto rotation_matrix = model.rotation_matrix;
+    auto objToWorld = model.objToWorld();
+    auto viewMatrix = cam.viewMatrix();
+    auto projMatrix = cam.projectionMatrix;
+
+    for (auto& face: model.faces){
+
+        auto a = vertex_shader->shade(face.a, rotation_matrix, objToWorld, cam);
+        auto b = vertex_shader->shade(face.b, rotation_matrix, objToWorld, cam);
+        auto c = vertex_shader->shade(face.c, rotation_matrix, objToWorld, cam);
+
+        if (backfaceCulling(a, b, c))
+            continue;
+
+        a = geom_shader->shade(a, projMatrix, viewMatrix);
+        b = geom_shader->shade(b, projMatrix, viewMatrix);
+        c = geom_shader->shade(c, projMatrix, viewMatrix);
+
+        rasterBarTriangle(a, b, c);
+    }
+}
